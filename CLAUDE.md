@@ -31,8 +31,19 @@ state/posted_articles.json → 이미 게시한 기사 목록 로드
 
 **수집 우선순위**: RSS → WebSearch → WebFetch(HTML 스크래핑)
 
-### Step 3: 중복 필터링
+### Step 3: 최신 기사 필터링 및 중복 제거
 
+**3-1. 발행일 기준 필터**
+- `posted_articles.json`의 `last_updated` 타임스탬프 확인
+- 마지막 실행 이후에 발행된 기사만 대상으로 한다
+- `last_updated`가 null(첫 실행)이면 최근 48시간 이내 기사만 수집
+- 발행일(pubDate)이 없는 기사는 새 기사로 간주
+
+**3-2. 발행일 기준 정렬**
+- 수집된 기사를 발행일 기준 최신순(내림차순)으로 정렬
+- Slack에 게시할 때 최신 기사가 먼저 올라가도록 한다
+
+**3-3. 중복 제거**
 1. 각 기사 URL의 SHA-256 해시 앞 8자리를 `url_hash`로 생성
 2. `posted_articles.json`에서 해당 `url_hash` 존재 여부 확인
 3. 이미 존재하면 → 건너뛰기 (중복)

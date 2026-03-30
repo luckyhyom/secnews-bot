@@ -1,0 +1,53 @@
+{
+  "sources": [
+    {
+      "id": "boannews",
+      "name": "보안뉴스",
+      "url": "https://www.boannews.com/media/news_rss.xml",
+      "type": "rss",
+      "language": "ko",
+      "category": "domestic-security"
+    },
+    {
+      "id": "dailysecu",
+      "name": "데일리시큐",
+      "url": "https://www.dailysecu.com/rss/allArticle.xml",
+      "type": "rss",
+      "language": "ko",
+      "category": "hacking-malware"
+    },
+    {
+      "id": "thehackernews",
+      "name": "The Hacker News",
+      "url": "https://feeds.feedburner.com/TheHackersNews",
+      "type": "rss",
+      "language": "en",
+      "category": "global-threats"
+    },
+    {
+      "id": "bleepingcomputer",
+      "name": "BleepingComputer",
+      "url": "https://www.bleepingcomputer.com/feed/",
+      "type": "rss",
+      "language": "en",
+      "category": "ransomware-malware"
+    },
+    {
+      "id": "kisa",
+      "name": "KISA 보호나라",
+      "url": "https://www.boho.or.kr/kr/bbs/list.do?menuNo=205020&bbsId=B0000133",
+      "type": "scrape",
+      "language": "ko",
+      "category": "advisories",
+      "article_url_pattern": "https://www.boho.or.kr/kr/bbs/view.do?bbsId=B0000133&menuNo=205020&nttId={id}"
+    },
+    {
+      "id": "exploitdb",
+      "name": "Exploit Database",
+      "url": "https://www.exploit-db.com/rss.xml",
+      "type": "rss",
+      "language": "en",
+      "category": "exploits"
+    }
+  ]
+}

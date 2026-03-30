@@ -1,11 +1,47 @@
 {
-  "last_updated": null,
+  "last_updated": "2026-03-30T00:37:32Z",
   "articles": {
-    "boannews": [],
-    "dailysecu": [],
-    "thehackernews": [],
-    "bleepingcomputer": [],
-    "kisa": [],
-    "exploitdb": []
+    "boannews": [
+      {"url_hash": "1a55e5c0", "title": "[특집] 안티치트 관련 SW 등 게임!… 게임 업체들의 고민", "posted_at": "2026-03-30T00:35:03Z"},
+      {"url_hash": "cb23e053", "title": "이용자의 보안위협수준이 점점높아져, 소비자들이 느끼는 일상적인 불안 증가", "posted_at": "2026-03-30T00:35:12Z"},
+      {"url_hash": "a5e169cb", "title": "자동 배포체계의 변환 과정… 오픈 소스플랫폼의 공급망 위험", "posted_at": "2026-03-30T00:35:20Z"},
+      {"url_hash": "51270145", "title": "[Global Security TOP 100] 보안사 경영진들이 가장 우려하는 리스크", "posted_at": "2026-03-30T00:35:30Z"},
+      {"url_hash": "825e5557", "title": "2026년 4월 '보안&관리' 분야 컨퍼런스 이벤트 채용 공고 일정", "posted_at": "2026-03-30T00:35:38Z"}
+    ],
+    "dailysecu": [
+      {"url_hash": "a6ff662b", "title": "이란 해커그룹, FBI 국장 개인 이메일 침해…심리전·파괴공격 결합된 사이버전 확산", "posted_at": "2026-03-30T00:35:48Z"},
+      {"url_hash": "070bb159", "title": "[CISO 조찬] 빔소프트웨어 존 제스터 CRO \"데이터 보안 없이는 AI도, 데이터 복원력 없이는 AI 신뢰도 없다\"", "posted_at": "2026-03-30T00:35:58Z"},
+      {"url_hash": "49e52efb", "title": "[CISO 조찬] 이원태 교수 \"AI 3강, 보안 없이 불가능\"…한국형 AI 보안정책 전환 필요성 강조", "posted_at": "2026-03-30T00:36:07Z"},
+      {"url_hash": "3f015f9b", "title": "네덜란드 명문 구단 아약스 시스템 뚫렸다…수십만 팬 계정 위험 노출", "posted_at": "2026-03-30T00:36:16Z"},
+      {"url_hash": "e16f59db", "title": "맥OS도 안심 못한다…클라우드플레어 사칭한 새 정보탈취 악성코드 등장", "posted_at": "2026-03-30T00:36:25Z"}
+    ],
+    "thehackernews": [
+      {"url_hash": "61bc3bc2", "title": "Iran-Linked Hackers Breach FBI Director's Personal Email, Hit Stryker With Wiper Attack", "posted_at": "2026-03-30T00:35:32Z"},
+      {"url_hash": "3100a14f", "title": "Citrix NetScaler Under Active Recon for CVE-2026-3055 (CVSS 9.3) Memory Overread Bug", "posted_at": "2026-03-30T00:35:45Z"},
+      {"url_hash": "f3c27614", "title": "TA446 Deploys DarkSword iOS Exploit Kit in Targeted Spear-Phishing Campaign", "posted_at": "2026-03-30T00:35:58Z"},
+      {"url_hash": "adf98943", "title": "CISA Adds CVE-2025-53521 to KEV After Active F5 BIG-IP APM Exploitation", "posted_at": "2026-03-30T00:36:13Z"},
+      {"url_hash": "81e28439", "title": "Apple Sends Lock Screen Alerts to Outdated iPhones Over Active Web-Based Exploits", "posted_at": "2026-03-30T00:36:25Z"}
+    ],
+    "bleepingcomputer": [
+      {"url_hash": "2a2a1c2d", "title": "FBI confirms hack of Director Patel's personal email inbox", "posted_at": "2026-03-30T00:36:40Z"},
+      {"url_hash": "393b5140", "title": "File read flaw in Smart Slider plugin impacts 500K WordPress sites", "posted_at": "2026-03-30T00:36:52Z"},
+      {"url_hash": "fee0b983", "title": "New Infinity Stealer malware grabs macOS data via ClickFix lures", "posted_at": "2026-03-30T00:37:05Z"},
+      {"url_hash": "cdbcb252", "title": "Backdoored Telnyx PyPI package pushes malware hidden in WAV audio", "posted_at": "2026-03-30T00:37:19Z"},
+      {"url_hash": "d3975599", "title": "Fake VS Code alerts on GitHub spread malware to developers", "posted_at": "2026-03-30T00:37:32Z"}
+    ],
+    "kisa": [
+      {"url_hash": "5b54d84d", "title": "Langflow 제품 보안 업데이트 권고", "posted_at": "2026-03-30T00:30:00Z"},
+      {"url_hash": "40f5b1ab", "title": "Citrix 제품 보안 업데이트 권고", "posted_at": "2026-03-30T00:30:00Z"},
+      {"url_hash": "6a962721", "title": "TP-Link 제품 보안 업데이트 권고", "posted_at": "2026-03-30T00:30:00Z"},
+      {"url_hash": "743f42bf", "title": "불법 스트리밍 앱으로 인한 개인정보 유출 및 문자 무단 발송 주의 권고", "posted_at": "2026-03-30T00:30:00Z"},
+      {"url_hash": "fc684781", "title": "Oracle 제품 보안 업데이트 권고", "posted_at": "2026-03-30T00:30:00Z"}
+    ],
+    "exploitdb": [
+      {"url_hash": "56776f88", "title": "WordPress Backup Migration 1.3.7 - Remote Command Execution", "posted_at": "2026-03-30T00:30:00Z"},
+      {"url_hash": "cb81574c", "title": "mailcow 2025-01a - Host Header Password Reset Poisoning", "posted_at": "2026-03-30T00:30:00Z"},
+      {"url_hash": "e4dc804a", "title": "Easy File Sharing Web Server v7.2 - Buffer Overflow", "posted_at": "2026-03-30T00:30:00Z"},
+      {"url_hash": "12857cc5", "title": "WeGIA 3.5.0 - SQL Injection", "posted_at": "2026-03-30T00:30:00Z"},
+      {"url_hash": "f87e6a81", "title": "Boss Mini v1.4.0 - Local File Inclusion (LFI)", "posted_at": "2026-03-30T00:30:00Z"}
+    ]
   }
 }

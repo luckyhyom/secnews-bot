@@ -40,16 +40,24 @@ state/posted_articles.json → 이미 게시한 기사 목록 로드
 ### Step 5: Slack 게시
 
 1. `templates/slack_message.md` 형식에 맞춰 메시지 포맷팅
-2. `.env`에서 `SLACK_WEBHOOK_URL` 읽기
-3. 각 기사를 Slack webhook으로 POST
+2. Slack Bot Token과 Channel ID를 환경변수 또는 `.env`에서 읽기
+   - `SLACK_BOT_TOKEN`: Bot User OAuth Token (xoxb-...)
+   - `SLACK_CHANNEL_ID`: 게시 대상 채널 ID
+3. `scripts/post_to_slack.sh`를 사용하여 Slack chat.postMessage API로 게시
 4. 소스당 최대 5개 기사만 게시
 5. 게시 간 1초 대기 (Slack rate limit 준수)
 
-Slack 메시지 JSON 형식:
-```json
-{
-  "text": "🔒 [출처명] 기사 제목\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n📝 AI 요약:\n요약 내용 3~5줄\n\n🏷️ 카테고리: 분류\n🔗 원문: URL\n🕐 발행: YYYY-MM-DD\n━━━━━━━━━━━━━━━━━━━━━━━━━━"
-}
+Slack 게시 명령:
+```bash
+./scripts/post_to_slack.sh "🔒 [출처명] 기사 제목
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+📝 AI 요약:
+요약 내용 3~5줄
+
+🏷️ 카테고리: 분류
+🔗 원문: URL
+🕐 발행: YYYY-MM-DD
+━━━━━━━━━━━━━━━━━━━━━━━━━━"
 ```
 
 ### Step 6: 상태 업데이트
@@ -85,7 +93,7 @@ git push
 ## Error Handling (오류 처리)
 
 - 소스 fetch 실패 → 해당 소스 건너뛰고 나머지 계속 처리
-- Slack webhook 실패 → 오류 로그 남기고 다음 실행에서 재시도
+- Slack API 실패 → 오류 로그 남기고 다음 실행에서 재시도
 - 중복 기사 → 절대 재게시하지 않음
 - JSON 파싱 오류 → 기존 상태 파일 보존, 손상된 데이터 무시
 - 기사가 0건인 경우 → 정상 종료 (불필요한 커밋 하지 않음)

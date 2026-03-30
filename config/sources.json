@@ -36,10 +36,10 @@
       "id": "kisa",
       "name": "KISA 보호나라",
       "url": "https://www.boho.or.kr/kr/bbs/list.do?menuNo=205020&bbsId=B0000133",
-      "type": "scrape",
+      "type": "websearch",
+      "search_query": "site:boho.or.kr 보안공지",
       "language": "ko",
-      "category": "advisories",
-      "article_url_pattern": "https://www.boho.or.kr/kr/bbs/view.do?bbsId=B0000133&menuNo=205020&nttId={id}"
+      "category": "advisories"
     },
     {
       "id": "exploitdb",

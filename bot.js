@@ -21,7 +21,9 @@ function runClaude(prompt, sessionId) {
     }
 
     const proc = spawn("claude", args, {
-      env: { ...process.env, CLAUDE_CODE_SIMPLE: "1" },
+      stdio: ["ignore", "pipe", "pipe"],
+      cwd: "/Users/dev/workspace/secnews-bot",
+      env: { ...process.env },
       timeout: 300_000,
     });
 
@@ -33,10 +35,15 @@ function runClaude(prompt, sessionId) {
 
     proc.on("close", (code) => {
       if (code !== 0) {
-        return reject(new Error(stderr || `claude exited with code ${code}`));
+        console.error("claude stderr:", stderr);
+        console.error("claude stdout:", stdout);
+        return reject(new Error(stderr || stdout || `claude exited with code ${code}`));
       }
       try {
         const result = JSON.parse(stdout);
+        if (result.is_error) {
+          return reject(new Error(result.result || "Claude error"));
+        }
         resolve(result);
       } catch {
         resolve({ result: stdout.trim(), session_id: sessionId });

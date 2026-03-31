@@ -7,11 +7,6 @@ import { classifyIntent } from "./src/router.js";
 import { JiraAgent } from "./src/agents/jira.js";
 import { EmailAgent } from "./src/agents/email.js";
 import { TokenStore } from "./src/auth/token-store.js";
-import {
-  createOAuth2Client,
-  generateAuthUrl,
-  waitForCallback,
-} from "./src/auth/oauth-flow.js";
 
 const { App } = bolt;
 
@@ -98,9 +93,9 @@ async function handleWithProvider(text, intent, slackUserId) {
       return agent.handle(text);
     }
     case "email": {
-      const tokens = tokenStore?.getToken(slackUserId);
-      if (!tokens) return "Gmail이 연동되지 않았습니다.";
-      const agent = new EmailAgent(llm, tokens);
+      const credentials = tokenStore?.getToken(slackUserId);
+      if (!credentials) return "이메일이 연동되지 않았습니다. `@봇 connect-email`을 먼저 입력해주세요.";
+      const agent = new EmailAgent(llm, credentials);
       return agent.handle(text);
     }
     case "news":
@@ -123,7 +118,9 @@ app.event("app_mention", async ({ event, say }) => {
     return;
   }
 
-  // --- Gmail 연동 명령 ---
+  // --- 이메일 연동 명령 (IMAP) ---
+  // 형식: connect-email <IMAP서버> <이메일> <앱비밀번호>
+  const emailMatch = text.match(/connect-email\s+(\S+)\s+(\S+)\s+(\S+)/i);
   if (/connect-email/i.test(text)) {
     if (!tokenStore) {
       await say({
@@ -133,26 +130,38 @@ app.event("app_mention", async ({ event, say }) => {
       return;
     }
 
-    const port = parseInt(process.env.OAUTH_REDIRECT_PORT || "3000", 10);
-    const oauth2Client = createOAuth2Client(port);
-    const authUrl = generateAuthUrl(oauth2Client);
+    if (!emailMatch) {
+      await say({
+        text: [
+          "📧 이메일 연동 형식:",
+          "`@봇 connect-email <IMAP서버> <이메일> <앱비밀번호>`",
+          "",
+          "예시:",
+          "• Gmail: `@봇 connect-email imap.gmail.com gyals0386@gmail.com xxxx-xxxx-xxxx-xxxx`",
+          "• 네이버: `@봇 connect-email imap.naver.com user@naver.com 앱비밀번호`",
+          "• 메일플러그: `@봇 connect-email imap.mailplug.co.kr user@company.com 비밀번호`",
+          "",
+          "Gmail 앱 비밀번호 발급: https://myaccount.google.com/apppasswords",
+        ].join("\n"),
+        thread_ts: threadTs,
+      });
+      return;
+    }
+
+    const [, host, user, pass] = emailMatch;
+    tokenStore.saveToken(event.user, { host, user, pass });
 
     await say({
-      text: `📧 Gmail 연동을 시작합니다.\n아래 링크에서 Google 계정을 인증해주세요:\n${authUrl}`,
+      text: `✅ 이메일 연동 완료! (${user})\n이제 메일 관련 질문을 할 수 있습니다.`,
       thread_ts: threadTs,
     });
 
+    // 원본 메시지 삭제 시도 (비밀번호 노출 방지)
     try {
-      const tokens = await waitForCallback(oauth2Client, port);
-      tokenStore.saveToken(event.user, tokens);
-
+      await app.client.chat.delete({ channel: event.channel, ts: event.ts });
+    } catch {
       await say({
-        text: "✅ Gmail 연동 완료! 이제 메일 관련 질문을 할 수 있습니다.",
-        thread_ts: threadTs,
-      });
-    } catch (err) {
-      await say({
-        text: `❌ Gmail 인증 실패: ${err.message}`,
+        text: "⚠️ 보안을 위해 위 메시지를 직접 삭제해주세요 (비밀번호 포함).",
         thread_ts: threadTs,
       });
     }
@@ -163,13 +172,15 @@ app.event("app_mention", async ({ event, say }) => {
   const { intent, systemPrompt } = classifyIntent(text);
   console.log(`[라우터] 의도: ${intent} | 프로바이더: ${providerType} | 텍스트: ${text.slice(0, 50)}`);
 
-  // Email 에이전트: 인증 확인
-  if (intent === "email" && tokenStore && !tokenStore.hasToken(event.user)) {
-    await say({
-      text: '📧 Gmail이 연동되지 않았습니다. 먼저 "/connect-email"을 입력해주세요.',
-      thread_ts: threadTs,
-    });
-    return;
+  // Email 에이전트: 인증 확인 (프로바이더 무관하게 자체 OAuth 사용)
+  if (intent === "email") {
+    if (!tokenStore || !tokenStore.hasToken(event.user)) {
+      await say({
+        text: '📧 이메일이 연동되지 않았습니다. "@봇 connect-email"을 입력하여 연동 방법을 확인하세요.',
+        thread_ts: threadTs,
+      });
+      return;
+    }
   }
 
   const loading = await say({ text: "생각 중...", thread_ts: threadTs });
@@ -177,7 +188,10 @@ app.event("app_mention", async ({ event, say }) => {
   try {
     let response;
 
-    if (isClaudeCode) {
+    if (intent === "email") {
+      // Email은 프로바이더 무관하게 자체 에이전트 사용 (MCP 인증 불가)
+      response = await handleWithProvider(text, intent, event.user);
+    } else if (isClaudeCode) {
       // Claude Code 모드: CLI를 통해 MCP 도구 포함 전체 기능 사용
       const sessionId = sessions.get(threadTs);
       const result = await runClaude(text, sessionId, systemPrompt);
@@ -197,11 +211,20 @@ app.event("app_mention", async ({ event, say }) => {
       text: response,
     });
   } catch (err) {
-    console.error("오류:", err);
+    console.error("오류:", err.message);
+
+    // 에러 메시지 간소화
+    let errorText = err.message;
+    if (errorText.includes("hit your limit") || errorText.includes("resets")) {
+      errorText = "⏳ Claude 토큰 리밋에 도달했습니다. 잠시 후 다시 시도해주세요.";
+    } else if (errorText.length > 200) {
+      errorText = errorText.slice(0, 200) + "...";
+    }
+
     await app.client.chat.update({
       channel: event.channel,
       ts: loading.ts,
-      text: `오류 발생: ${err.message}`,
+      text: errorText,
     });
   }
 });

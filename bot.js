@@ -2,6 +2,7 @@ import "dotenv/config";
 import bolt from "@slack/bolt";
 import { spawn } from "child_process";
 import { join } from "path";
+import { readFileSync } from "fs";
 import { createProvider } from "./src/llm/index.js";
 import { classifyIntent } from "./src/router.js";
 import { JiraAgent } from "./src/agents/jira.js";
@@ -24,7 +25,7 @@ const isClaudeCode = providerType === "claude-code";
 // Slack thread_ts → Claude Code session ID (claude-code 모드 전용)
 const sessions = new Map();
 
-// OAuth 토큰 저장소 (Email 에이전트용)
+// 토큰 저장소 (Email 에이전트용)
 let tokenStore;
 try {
   tokenStore = new TokenStore(join(process.cwd(), "state/tokens.json"));
@@ -34,7 +35,6 @@ try {
 
 /**
  * Claude Code CLI를 호출한다 (claude-code 모드 전용).
- * systemPrompt가 있으면 --system-prompt로 전달하여 에이전트별 동작을 분기.
  */
 function runClaude(prompt, sessionId, systemPrompt) {
   return new Promise((resolve, reject) => {
@@ -84,7 +84,6 @@ function runClaude(prompt, sessionId, systemPrompt) {
 
 /**
  * LLM 프로바이더를 통해 응답을 생성한다 (ollama 등 로컬 LLM 모드).
- * 의도별로 적절한 에이전트를 호출하거나, 일반 대화는 LLM에 직접 전달.
  */
 async function handleWithProvider(text, intent, slackUserId) {
   switch (intent) {
@@ -94,17 +93,76 @@ async function handleWithProvider(text, intent, slackUserId) {
     }
     case "email": {
       const credentials = tokenStore?.getToken(slackUserId);
-      if (!credentials) return "이메일이 연동되지 않았습니다. `@봇 connect-email`을 먼저 입력해주세요.";
+      if (!credentials)
+        return '이메일이 연동되지 않았습니다. `@봇 connect-email`을 입력해주세요.';
       const agent = new EmailAgent(llm, credentials);
       return agent.handle(text);
     }
     case "news":
-      return llm.complete(
-        `보안 뉴스 관련 질문에 답하세요: ${text}`,
-        { systemPrompt: "당신은 보안 뉴스 전문가입니다. 한국어로 답하세요." }
-      );
+      return llm.complete(`보안 뉴스 관련 질문에 답하세요: ${text}`, {
+        systemPrompt: "당신은 보안 뉴스 전문가입니다. 한국어로 답하세요.",
+      });
     default:
       return llm.complete(text);
+  }
+}
+
+// --- 메뉴 메시지 ---
+const MENU_TEXT = [
+  "📋 *SecNews Bot 메뉴*",
+  "━━━━━━━━━━━━━━━━━━━━━━━━━━",
+  "",
+  "1️⃣  *보안 뉴스*  —  최신 보안 뉴스 수집 및 조회",
+  '    예: `@봇 최근 보안 뉴스 알려줘`',
+  "",
+  "2️⃣  *지라 자료 검색*  —  Jira 이슈/티켓/스프린트 검색",
+  '    예: `@봇 지라에서 긴급 이슈 검색해줘`',
+  "",
+  "3️⃣  *이메일 검색*  —  IMAP 기반 이메일 조회",
+  '    예: `@봇 안 읽은 메일 요약해줘`',
+  "",
+  "4️⃣  *이메일 연동*  —  이메일 계정 등록",
+  '    예: `@봇 connect-email`',
+  "",
+  "5️⃣  *상태 확인*  —  봇 상태 및 뉴스 수집 현황",
+  '    예: `@봇 상태`',
+  "",
+  "6️⃣  *도움말*  —  이 메뉴 보기",
+  '    예: `@봇 메뉴` 또는 `@봇 도움말`',
+  "",
+  "━━━━━━━━━━━━━━━━━━━━━━━━━━",
+  "위 키워드 외의 입력은 일반 대화로 처리됩니다.",
+].join("\n");
+
+/**
+ * 봇 상태 정보를 조회한다.
+ */
+function getStatusText() {
+  try {
+    const statePath = join(process.cwd(), "state/posted_articles.json");
+    const state = JSON.parse(readFileSync(statePath, "utf-8"));
+
+    const lastUpdated = state.last_updated
+      ? new Date(state.last_updated).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })
+      : "없음";
+
+    const sourceLines = Object.entries(state.articles || {}).map(
+      ([source, articles]) => `  • ${source}: ${articles.length}건`
+    );
+
+    return [
+      "📊 *봇 상태*",
+      "━━━━━━━━━━━━━━━━━━━━━━━━━━",
+      `🤖 LLM 프로바이더: \`${providerType}\``,
+      `📰 마지막 뉴스 수집: ${lastUpdated}`,
+      `📧 이메일 연동: ${tokenStore ? "활성" : "비활성"}`,
+      "",
+      "*소스별 게시 이력:*",
+      ...sourceLines,
+      "━━━━━━━━━━━━━━━━━━━━━━━━━━",
+    ].join("\n");
+  } catch {
+    return "상태 정보를 불러올 수 없습니다.";
   }
 }
 
@@ -118,10 +176,26 @@ app.event("app_mention", async ({ event, say }) => {
     return;
   }
 
-  // --- 이메일 연동 명령 (IMAP) ---
-  // 형식: connect-email <IMAP서버> <이메일> <앱비밀번호>
-  const emailMatch = text.match(/connect-email\s+(\S+)\s+(\S+)\s+(\S+)/i);
-  if (/connect-email/i.test(text)) {
+  // 의도 분류
+  const { intent, systemPrompt } = classifyIntent(text);
+  console.log(`[라우터] 의도: ${intent} | 텍스트: ${text.slice(0, 50)}`);
+
+  // --- LLM 호출 없이 처리되는 명령들 ---
+
+  // 메뉴/도움말
+  if (intent === "menu") {
+    await say({ text: MENU_TEXT, thread_ts: threadTs });
+    return;
+  }
+
+  // 상태 확인
+  if (intent === "status") {
+    await say({ text: getStatusText(), thread_ts: threadTs });
+    return;
+  }
+
+  // 이메일 연동 (IMAP)
+  if (intent === "connect-email" || /connect-email/i.test(text)) {
     if (!tokenStore) {
       await say({
         text: "Email 에이전트가 비활성 상태입니다 (TOKEN_ENCRYPTION_KEY 미설정).",
@@ -130,14 +204,16 @@ app.event("app_mention", async ({ event, say }) => {
       return;
     }
 
+    const emailMatch = text.match(/connect-email\s+(\S+)\s+(\S+)\s+(\S+)/i);
     if (!emailMatch) {
       await say({
         text: [
-          "📧 이메일 연동 형식:",
+          "📧 *이메일 연동 방법*",
+          "",
           "`@봇 connect-email <IMAP서버> <이메일> <앱비밀번호>`",
           "",
           "예시:",
-          "• Gmail: `@봇 connect-email imap.gmail.com gyals0386@gmail.com xxxx-xxxx-xxxx-xxxx`",
+          "• Gmail: `@봇 connect-email imap.gmail.com user@gmail.com xxxx-xxxx-xxxx-xxxx`",
           "• 네이버: `@봇 connect-email imap.naver.com user@naver.com 앱비밀번호`",
           "• 메일플러그: `@봇 connect-email imap.mailplug.co.kr user@company.com 비밀번호`",
           "",
@@ -148,8 +224,8 @@ app.event("app_mention", async ({ event, say }) => {
       return;
     }
 
-    // Slack 자동 포맷팅 제거 (<url|text> → text, <mailto:email|email> → email)
-    const stripSlack = (s) => s.replace(/<[^|>]+\|([^>]+)>/g, "$1").replace(/<|>/g, "");
+    const stripSlack = (s) =>
+      s.replace(/<[^|>]+\|([^>]+)>/g, "$1").replace(/<|>/g, "");
     const host = stripSlack(emailMatch[1]);
     const user = stripSlack(emailMatch[2]);
     const pass = stripSlack(emailMatch[3]);
@@ -160,7 +236,6 @@ app.event("app_mention", async ({ event, say }) => {
       thread_ts: threadTs,
     });
 
-    // 원본 메시지 삭제 시도 (비밀번호 노출 방지)
     try {
       await app.client.chat.delete({ channel: event.channel, ts: event.ts });
     } catch {
@@ -172,31 +247,29 @@ app.event("app_mention", async ({ event, say }) => {
     return;
   }
 
-  // 의도 분류
-  const { intent, systemPrompt } = classifyIntent(text);
-  console.log(`[라우터] 의도: ${intent} | 프로바이더: ${providerType} | 텍스트: ${text.slice(0, 50)}`);
-
-  // Email 에이전트: 인증 확인 (프로바이더 무관하게 자체 OAuth 사용)
+  // Email 인증 확인
   if (intent === "email") {
     if (!tokenStore || !tokenStore.hasToken(event.user)) {
       await say({
-        text: '📧 이메일이 연동되지 않았습니다. "@봇 connect-email"을 입력하여 연동 방법을 확인하세요.',
+        text: '📧 이메일이 연동되지 않았습니다. `@봇 connect-email`을 입력하여 연동 방법을 확인하세요.',
         thread_ts: threadTs,
       });
       return;
     }
   }
 
-  const loading = await say({ text: "생각 중...", thread_ts: threadTs });
+  // --- LLM 호출이 필요한 처리 ---
+  const loading = await say({
+    text: '생각 중... (💡 `@봇 메뉴`를 입력하면 기능 메뉴를 확인할 수 있습니다.)',
+    thread_ts: threadTs,
+  });
 
   try {
     let response;
 
     if (intent === "email") {
-      // Email은 프로바이더 무관하게 자체 에이전트 사용 (MCP 인증 불가)
       response = await handleWithProvider(text, intent, event.user);
     } else if (isClaudeCode) {
-      // Claude Code 모드: CLI를 통해 MCP 도구 포함 전체 기능 사용
       const sessionId = sessions.get(threadTs);
       const result = await runClaude(text, sessionId, systemPrompt);
 
@@ -204,9 +277,7 @@ app.event("app_mention", async ({ event, say }) => {
         sessions.set(threadTs, result.session_id);
       }
       response = result.result || result.text || JSON.stringify(result);
-      console.log(`[응답] 길이: ${response.length}자, 타입: ${typeof response}`);
     } else {
-      // 로컬 LLM 모드: Node.js가 API 호출, LLM은 분석/요약만
       response = await handleWithProvider(text, intent, event.user);
     }
 
@@ -215,7 +286,6 @@ app.event("app_mention", async ({ event, say }) => {
       await app.client.chat.delete({ channel: event.channel, ts: loading.ts });
     } catch {}
 
-    // Slack 메시지 길이 제한 (약 3900자씩 분할)
     const MAX_LEN = 3900;
     const chunks = [];
     for (let i = 0; i < response.length; i += MAX_LEN) {
@@ -227,10 +297,10 @@ app.event("app_mention", async ({ event, say }) => {
   } catch (err) {
     console.error("오류:", err.message);
 
-    // 에러 메시지 간소화
     let errorText = err.message;
     if (errorText.includes("hit your limit") || errorText.includes("resets")) {
-      errorText = "⏳ Claude 토큰 리밋에 도달했습니다. 잠시 후 다시 시도해주세요.";
+      errorText =
+        "⏳ Claude 토큰 리밋에 도달했습니다. 잠시 후 다시 시도해주세요.";
     } else if (errorText.length > 200) {
       errorText = errorText.slice(0, 200) + "...";
     }

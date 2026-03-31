@@ -4,8 +4,24 @@ import { EMAIL_SYSTEM_PROMPT } from './agents/email-prompt.js';
 /**
  * 의도별 키워드 정의.
  * 키워드 매칭은 LLM 호출 없이 빠르고 비용이 들지 않는다.
+ * 순서 중요: 먼저 매칭되는 규칙이 우선.
  */
 const INTENT_RULES = [
+  {
+    intent: 'menu',
+    keywords: ['메뉴', '도움말', 'help', 'menu', '명령어', '사용법'],
+    systemPrompt: null,
+  },
+  {
+    intent: 'status',
+    keywords: ['상태', '현황', 'status'],
+    systemPrompt: null,
+  },
+  {
+    intent: 'connect-email',
+    keywords: ['connect-email', '이메일 연동', '메일 연동', '메일 등록'],
+    systemPrompt: null,
+  },
   {
     intent: 'news',
     keywords: ['뉴스', '보안', '수집', '기사', 'news', '최신', '피드'],

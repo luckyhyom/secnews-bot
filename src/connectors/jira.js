@@ -63,13 +63,10 @@ export class JiraClient {
       'summary', 'status', 'assignee', 'priority', 'created', 'updated', 'issuetype',
     ];
 
-    const params = new URLSearchParams({
-      jql,
-      maxResults: String(maxResults),
-      fields: fields.join(','),
+    return this._request('/rest/api/3/search/jql', {
+      method: 'POST',
+      body: JSON.stringify({ jql, maxResults, fields }),
     });
-
-    return this._request(`/rest/api/3/search?${params}`);
   }
 
   /**
@@ -115,7 +112,8 @@ export class JiraClient {
    * @returns {string}
    */
   formatForLLM(searchResult) {
-    const { total, issues } = searchResult;
+    const issues = searchResult.issues || [];
+    const total = searchResult.total ?? issues.length;
     const lines = [`총 ${total}건 검색됨 (상위 ${issues.length}건 표시)\n`];
 
     for (const issue of issues) {

@@ -113,41 +113,6 @@ async function handleWithProvider(text, intent, slackUserId) {
   }
 }
 
-// --- 이메일 인증 명령 ---
-app.message(/\/connect-email/i, async ({ message, say }) => {
-  if (!tokenStore) {
-    await say({
-      text: "Email 에이전트가 비활성 상태입니다 (TOKEN_ENCRYPTION_KEY 미설정).",
-      thread_ts: message.ts,
-    });
-    return;
-  }
-
-  const port = parseInt(process.env.OAUTH_REDIRECT_PORT || "3000", 10);
-  const oauth2Client = createOAuth2Client(port);
-  const authUrl = generateAuthUrl(oauth2Client);
-
-  await say({
-    text: `📧 Gmail 연동을 시작합니다.\n아래 링크에서 Google 계정을 인증해주세요:\n${authUrl}`,
-    thread_ts: message.ts,
-  });
-
-  try {
-    const tokens = await waitForCallback(oauth2Client, port);
-    tokenStore.saveToken(message.user, tokens);
-
-    await say({
-      text: "✅ Gmail 연동 완료! 이제 메일 관련 질문을 할 수 있습니다.",
-      thread_ts: message.ts,
-    });
-  } catch (err) {
-    await say({
-      text: `❌ Gmail 인증 실패: ${err.message}`,
-      thread_ts: message.ts,
-    });
-  }
-});
-
 // --- 멘션 이벤트 처리 ---
 app.event("app_mention", async ({ event, say }) => {
   const threadTs = event.thread_ts || event.ts;
@@ -155,6 +120,42 @@ app.event("app_mention", async ({ event, say }) => {
 
   if (!text) {
     await say({ text: "메시지를 입력해주세요.", thread_ts: threadTs });
+    return;
+  }
+
+  // --- Gmail 연동 명령 ---
+  if (/connect-email/i.test(text)) {
+    if (!tokenStore) {
+      await say({
+        text: "Email 에이전트가 비활성 상태입니다 (TOKEN_ENCRYPTION_KEY 미설정).",
+        thread_ts: threadTs,
+      });
+      return;
+    }
+
+    const port = parseInt(process.env.OAUTH_REDIRECT_PORT || "3000", 10);
+    const oauth2Client = createOAuth2Client(port);
+    const authUrl = generateAuthUrl(oauth2Client);
+
+    await say({
+      text: `📧 Gmail 연동을 시작합니다.\n아래 링크에서 Google 계정을 인증해주세요:\n${authUrl}`,
+      thread_ts: threadTs,
+    });
+
+    try {
+      const tokens = await waitForCallback(oauth2Client, port);
+      tokenStore.saveToken(event.user, tokens);
+
+      await say({
+        text: "✅ Gmail 연동 완료! 이제 메일 관련 질문을 할 수 있습니다.",
+        thread_ts: threadTs,
+      });
+    } catch (err) {
+      await say({
+        text: `❌ Gmail 인증 실패: ${err.message}`,
+        thread_ts: threadTs,
+      });
+    }
     return;
   }
 

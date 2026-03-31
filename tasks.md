@@ -94,17 +94,29 @@
 
 ## 7단계: Jira/Email 연동 테스트
 
-- [ ] Jira API Token 발급 및 `.env`에 설정
-- [ ] Jira 이슈 검색 동작 확인
+- [x] Jira API Token 발급 및 `.env`에 설정
+- [x] Jira 이슈 검색 동작 확인 (API 엔드포인트 /search/jql 마이그레이션 완료)
 - [ ] MCP 도구가 Claude Code CLI에서 정상 로드되는지 확인
-- [ ] Google Cloud Console에서 OAuth 클라이언트 생성
-- [ ] `/connect-email` → OAuth 인증 → 메일 조회 흐름 테스트
-- [ ] 공개 채널 vs DM 보안 정책 검증
+- [x] Google Cloud Console에서 OAuth 클라이언트 생성
+- [x] OAuth 동의 화면 설정 및 테스트 사용자 등록
+- [x] `connect-email` 명령을 멘션 기반으로 변경 (`app.message` → `app_mention` 내부)
+- [ ] Gmail OAuth 인증 → 메일 조회 흐름 테스트
 - [ ] Ollama 프로바이더로 Jira/Email 에이전트 테스트
 
 ---
 
-## 8단계: SCOUT+CRITIC 하이브리드 프로바이더
+## 8단계: IMAP 기반 범용 이메일 연동
+
+- [ ] `src/connectors/imap.js` — IMAP 클라이언트 (표준 프로토콜)
+- [ ] Gmail, 메일플러그, 네이버, Outlook 등 멀티 서비스 지원
+- [ ] 인증 방식: 이메일 + 앱 비밀번호 (OAuth 불필요)
+- [ ] `src/connectors/gmail.js`를 IMAP으로 대체 또는 폴백 구조
+- [ ] `@봇 connect-email` 플로우를 IMAP 방식으로 변경
+- [ ] 기존 Gmail OAuth 방식도 선택 가능하도록 유지
+
+---
+
+## 9단계: SCOUT+CRITIC 하이브리드 프로바이더
 
 - [ ] `src/llm/hybrid.js` — 하이브리드 프로바이더 구현
 - [ ] SCOUT 단계: 로컬 LLM으로 1차 분류/필터링
@@ -116,7 +128,7 @@
 
 ---
 
-## 9단계: websearch 소스 로컬 지원
+## 10단계: websearch 소스 로컬 지원
 
 - [ ] SearXNG 로컬 인스턴스 설정 (또는 대안 검색 엔진)
 - [ ] `src/collectors/websearch.js` — 검색 기반 기사 수집기
@@ -126,7 +138,7 @@
 
 ---
 
-## 10단계: 스케줄링 및 모니터링
+## 11단계: 스케줄링 및 모니터링
 
 - [ ] 클라우드 스케줄 등록 (cron: `0 */3 * * *`)
 - [ ] 또는 로컬 cron/systemd 타이머로 `npm run pipeline` 실행
@@ -146,6 +158,7 @@
 | 파이프라인 안정화 | ⬜ | 5단계 |
 | Jira/Email 에이전트 코드 | ✅ | 6단계 |
 | Jira/Email 연동 테스트 | ⬜ | 7단계 |
-| 비용 최적화 (하이브리드) | ⬜ | 8단계 |
-| 완전 로컬 자립 | ⬜ | 9단계 |
+| IMAP 범용 이메일 | ⬜ | 8단계 |
+| 비용 최적화 (하이브리드) | ⬜ | 9단계 |
+| 완전 로컬 자립 | ⬜ | 10단계 |
 | 무인 자동화 | ⬜ | 10단계 |

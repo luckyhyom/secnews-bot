@@ -334,14 +334,21 @@ JIRA_API_TOKEN=발급받은-토큰
 
 ## Email 연동 설정
 
+현재 Gmail OAuth 방식으로 구현되어 있으며, 향후 IMAP 기반 범용 연동(메일플러그, 네이버, Outlook 등)으로 확장 예정.
+
 ### 1. Google Cloud Console 설정
 
 1. https://console.cloud.google.com → 프로젝트 생성
 2. **API 및 서비스 → 라이브러리** → Gmail API 활성화
-3. **API 및 서비스 → 사용자 인증 정보** → OAuth 2.0 클라이언트 ID 생성
-   - 애플리케이션 유형: 웹 애플리케이션
+3. **API 및 서비스 → OAuth 동의 화면** 설정:
+   - User Type: **외부** 선택
+   - 앱 이름, 사용자 지원 이메일, 개발자 이메일 입력 → 저장 후 계속
+   - 범위는 기본값으로 → 저장 후 계속
+   - **테스트 사용자 추가**: 사용할 Gmail 주소 입력 → 저장
+4. **API 및 서비스 → 사용자 인증 정보** → OAuth 2.0 클라이언트 ID 생성
+   - 애플리케이션 유형: **웹 애플리케이션**
    - 승인된 리디렉션 URI: `http://localhost:3000/oauth/callback`
-4. 클라이언트 ID와 시크릿을 `.env`에 설정
+   - 생성 후 **클라이언트 ID**와 **클라이언트 보안 비밀번호** 복사
 
 ### 2. 환경변수 설정
 
@@ -354,15 +361,18 @@ TOKEN_ENCRYPTION_KEY=$(node -e "console.log(require('crypto').randomBytes(32).to
 
 ### 3. 사용자별 Gmail 인증
 
-Slack에서 `/connect-email`을 입력하면 봇이 OAuth 인증 URL을 전송한다.
-브라우저에서 Google 로그인 후 권한을 승인하면 연동이 완료된다.
+Slack에서 봇에게 멘션으로 `connect-email`을 보내면 인증이 시작된다.
 
 ```
-/connect-email
+@봇 connect-email
 → 봇이 인증 URL 전송
-→ 브라우저에서 Google 로그인 + 권한 승인
+→ URL 클릭 (봇이 실행 중인 PC의 브라우저에서 열어야 함)
+→ "Google hasn't verified this app" 경고 → Continue → 고급 → 안전하지 않은 페이지로 이동
+→ Google 로그인 + 권한 승인
 → "✅ Gmail 연동 완료!" 메시지 수신
 ```
+
+**주의**: OAuth 콜백이 `localhost:3000`으로 오기 때문에, 인증 URL은 반드시 **봇이 실행 중인 PC의 브라우저**에서 열어야 한다.
 
 각 Slack 사용자가 개별적으로 인증하며, 토큰은 AES-256-GCM으로 암호화되어 `state/tokens.json`에 저장된다.
 

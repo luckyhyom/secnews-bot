@@ -22,7 +22,7 @@ function runClaude(prompt, sessionId) {
 
     const proc = spawn("claude", args, {
       stdio: ["ignore", "pipe", "pipe"],
-      cwd: "/Users/dev/workspace/secnews-bot",
+      cwd: process.cwd(),
       env: { ...process.env },
       timeout: 300_000,
     });

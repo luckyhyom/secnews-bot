@@ -1,354 +1,242 @@
-# Security News Content Creator — Feature Specification
+# SecNews Bot — Product Requirement Document
 
-> Automated security news aggregation pipeline: Crawl → AI Summarize → Slack Distribution
+> 보안 뉴스 수집 → AI 한국어 요약 → Slack 자동 게시 파이프라인.
+> LLM Provider 추상화를 통해 Claude Code / Ollama 등 로컬 LLM으로 교체 가능한 구조.
 
 ## Overview
 
-### Goal
-Build an MVP that crawls 6 major security news sites, generates AI summaries in Korean, and posts them to a Slack channel on a recurring schedule using Claude Code cloud scheduling.
+### Mission
+
+보안 뉴스 6개 소스에서 최신 기사를 수집하고, AI 한국어 요약을 생성하여 Slack 채널에 자동 게시한다.
 
 ### Architecture
 
 ```
-[Cron Trigger (every 2-4 hours)]
-    → [Claude Code Cloud Agent]
-        → WebFetch: Collect new articles from RSS/web pages
-        → AI Summary: Generate Korean summary per article
-        → Slack Webhook: Post formatted messages to channel
-        → Git Commit: Update posted_articles.json state file
+┌─────────────────────────────────────────────────────────┐
+│  Pipeline Orchestrator (src/pipeline.js)                │
+│                                                         │
+│  ┌──────────┐   ┌──────────┐   ┌──────────┐            │
+│  │Collectors│──▶│Analyzers │──▶│Publishers│            │
+│  │  (RSS)   │   │(Summarize│   │ (Slack)  │            │
+│  └──────────┘   │  via LLM)│   └──────────┘            │
+│                 └────┬─────┘                            │
+│                      │                                  │
+│              ┌───────▼────────┐                         │
+│              │  LLM Provider  │                         │
+│              │  (추상화 계층)   │                         │
+│              └───┬────────┬───┘                         │
+│                  │        │                             │
+│           ┌──────▼──┐ ┌───▼─────┐                      │
+│           │ Claude  │ │ Ollama  │  ← 환경변수로 전환     │
+│           │  Code   │ │(로컬LLM)│                       │
+│           └─────────┘ └─────────┘                      │
+└─────────────────────────────────────────────────────────┘
+
+별도 프로세스:
+┌─────────────────────────────────────────────────────────┐
+│  Interactive Bot (bot.js)                               │
+│  Slack Socket Mode → Claude Code CLI (대화형 세션)       │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ### Project Structure
 
 ```
 secnews-bot/
-├── CLAUDE.md                  # Agent instructions (the brain)
-├── spec.md                    # This file — feature specification
-├── tasks.md                   # Task checklist per phase
+├── CLAUDE.md                     # Agent instructions (claude-code 모드용)
+├── spec.md                       # 이 파일 — PRD
+├── run.js                        # 파이프라인 CLI 엔트리 포인트
+├── bot.js                        # Slack 대화형 봇 (Socket Mode)
+├── src/
+│   ├── pipeline.js               # 오케스트레이션 (수집→분석→게시)
+│   ├── state.js                  # posted_articles.json 상태 관리
+│   ├── llm/
+│   │   ├── index.js              # createProvider() 팩토리
+│   │   ├── claude-code.js        # Claude Code CLI 프로바이더
+│   │   └── ollama.js             # Ollama REST API 프로바이더
+│   ├── collectors/
+│   │   └── rss.js                # RSS/Atom 피드 파서
+│   ├── analyzers/
+│   │   └── summarizer.js         # 기사 요약 + 심각도/카테고리 분류
+│   └── publishers/
+│       └── slack.js              # Slack chat.postMessage + 메시지 포맷
 ├── config/
-│   └── sources.json           # News source definitions
+│   └── sources.json              # 뉴스 소스 정의 (6개)
 ├── state/
-│   └── posted_articles.json   # Already-posted article tracking
-├── templates/
-│   └── slack_message.md       # Slack message format template
+│   └── posted_articles.json      # 게시 이력 (중복 방지용)
 ├── scripts/
-│   └── post_to_slack.sh       # Slack webhook posting script
-├── .env                       # Secrets (Slack webhook URL) — NOT in git
-└── .gitignore
+│   └── post_to_slack.sh          # Slack 게시 셸 스크립트 (레거시)
+├── templates/
+│   └── slack_message.md          # 메시지 템플릿 참고용
+├── .env                          # 시크릿 (SLACK_BOT_TOKEN 등)
+├── package.json
+└── bot.test.js                   # 봇 세션 테스트
 ```
 
 ---
 
-## Phase 1: Project Setup
+## 운영 모드
 
-### Objective
-Initialize the project repository and establish the foundational directory structure.
+### Mode A: Node.js Pipeline (`run.js`)
 
-### Deliverables
-- Git repository initialized and pushed to GitHub (required for cloud scheduling)
-- Directory structure created as shown above
-- `.gitignore` configured to exclude `.env`, secrets, OS files
-- Basic `README.md` with project purpose
+오케스트레이션을 Node.js 코드가 담당하고, LLM은 요약 생성만 수행한다.
+로컬 LLM 전환이 가능한 모드.
 
-### Technical Details
-- GitHub repo is mandatory because Claude Code cloud scheduling clones from GitHub on every execution
-- Repository should be private (contains automation logic and state data)
-
-### Risks
-| Risk | Mitigation |
-|------|------------|
-| GitHub repo not created | Cloud scheduling cannot function without it |
-
-### Verification
-- `git remote -v` shows GitHub remote
-- Directory structure matches spec
-
----
-
-## Phase 2: News Source Collection
-
-### Objective
-Define and validate all 6 news sources, determining the optimal collection method (RSS vs WebFetch) for each.
-
-### News Sources
-
-| # | Site | URL | Language | Focus |
-|---|------|-----|----------|-------|
-| 1 | Boannews (보안뉴스) | boannews.com | KR | Domestic security policy, regulations, enterprise incidents |
-| 2 | DailySecu (데일리시큐) | dailysecu.com | KR | Hacking incidents, malware analysis, vulnerability deep-dives |
-| 3 | The Hacker News | thehackernews.com | EN | Global cyber attacks, data breaches, zero-day alerts |
-| 4 | BleepingComputer | bleepingcomputer.com | EN | Ransomware trends, malware analysis, infrastructure breaches |
-| 5 | KISA 보호나라 | boho.or.kr | KR | Official security advisories, vulnerability patches from KISA |
-| 6 | Exploit Database | exploit-db.com | EN | Vulnerability PoC code, exploit data updates |
-
-### Collection Methods
-
-**Priority: RSS > Web Scraping**
-
-- **RSS available**: Parse XML feed, extract `<item>` elements (title, link, pubDate, description)
-- **RSS unavailable**: Use WebFetch on listing pages, let AI extract article entries from HTML
-
-### Deliverables
-- RSS feed availability confirmed for all 6 sites
-- `config/sources.json` created with:
-  ```json
-  {
-    "sources": [
-      {
-        "id": "thehackernews",
-        "name": "The Hacker News",
-        "url": "https://feeds.feedburner.com/TheHackersNews",
-        "type": "rss",
-        "language": "en",
-        "category": "global-threats"
-      }
-    ]
-  }
-  ```
-
-### Risks
-| Risk | Mitigation |
-|------|------------|
-| Some sites may not have RSS | Fall back to WebFetch + AI parsing |
-| RSS feed structure varies | AI agent handles parsing flexibility |
-| Sites block automated access | Respect robots.txt, use reasonable intervals |
-
-### Verification
-- Each source's RSS or web page is fetchable via WebFetch
-- `sources.json` contains all 6 entries with correct URLs and types
-
----
-
-## Phase 3: AI Summary Pipeline
-
-### Objective
-Design the CLAUDE.md agent prompt that drives the entire crawl-summarize-post pipeline.
-
-### Agent Execution Flow
-```
-1. Read config/sources.json → load source list
-2. Read state/posted_articles.json → load already-posted article IDs
-3. For each source:
-   a. WebFetch the RSS feed or web page
-   b. Extract article list (title, URL, date, description)
-4. Filter: keep only articles NOT in posted_articles
-5. For each new article:
-   a. Generate Korean summary (3-5 lines)
-   b. Classify category (vulnerability | incident | policy | analysis | exploit)
-   c. Format Slack message from template
-6. Post all new articles to Slack via webhook
-7. Update posted_articles.json with newly posted article IDs
-8. Git commit the updated state file
-```
-
-### Summary Rules
-- **Language**: Korean (translate English articles)
-- **Length**: 3-5 lines
-- **Must include**: Core impact, affected systems/software, action required
-- **Must preserve**: CVE numbers, version numbers, specific product names (do NOT translate these)
-- **Tone**: Professional, factual — no sensationalism
-
-### CLAUDE.md Structure
-```
-# SecNews Bot — Agent Instructions
-
-## Mission
-Collect latest security news and post AI summaries to Slack.
-
-## Execution Steps
-[Step-by-step pipeline as above]
-
-## Summary Guidelines
-[Rules as above]
-
-## Error Handling
-- If a source fails to fetch, skip it and continue with others
-- If Slack webhook fails, log the error and retry on next execution
-- Never post duplicate articles
-```
-
-### Risks
-| Risk | Mitigation |
-|------|------------|
-| AI hallucination in summaries | Always include original URL; summarize, don't fabricate |
-| CVE/version number errors | Explicit rule to preserve technical identifiers verbatim |
-| English→Korean translation quality | Keep summaries short; link to original for details |
-
-### Verification
-- Run agent prompt manually once and check output quality
-- Verify CVE numbers and product names match original articles
-- Confirm Korean summaries are accurate and readable
-
----
-
-## Phase 4: Slack Distribution
-
-### Objective
-Set up Slack integration and design the message format for posting news summaries.
-
-### Slack Setup
-1. Create a Slack app in workspace (or use existing)
-2. Enable Incoming Webhooks
-3. Create a webhook for the target channel (e.g., `#security-news`)
-4. Store webhook URL in `.env` file:
-   ```
-   SLACK_WEBHOOK_URL=https://hooks.slack.com/services/T.../B.../xxx
-   ```
-
-### Message Format
-```
-:lock: [보안뉴스] 기사 제목
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-:memo: AI 요약:
-요약 텍스트 3~5줄. 핵심 영향과 대응 방안 포함.
-CVE-2026-XXXX 등 기술 식별자는 원문 그대로 보존.
-
-:label: 카테고리: 취약점
-:link: 원문: https://example.com/article
-:clock3: 발행: 2026-03-30
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-```
-
-### Posting Script (`scripts/post_to_slack.sh`)
 ```bash
-#!/bin/bash
-# Usage: ./post_to_slack.sh "message payload json"
-WEBHOOK_URL=$(cat .env | grep SLACK_WEBHOOK_URL | cut -d'=' -f2)
-curl -X POST -H 'Content-type: application/json' \
-  --data "$1" \
-  "$WEBHOOK_URL"
+# Claude Code 백엔드
+npm run pipeline
+
+# Ollama 백엔드
+npm run pipeline:ollama
+
+# 게시 없이 테스트
+npm run pipeline:dry
+
+# CLI 옵션
+node run.js --provider=ollama --model=exaone3.5:32b --dry-run
 ```
 
-### Rate Limiting
-- Batch articles per source: post max 5 articles per source per execution
-- 1-second delay between posts to avoid Slack rate limits
-- Slack webhook limit: ~1 request/second
+**환경변수:**
 
-### Risks
-| Risk | Mitigation |
-|------|------------|
-| Webhook URL leak | `.env` in `.gitignore`, never commit |
-| Slack rate limiting | Batch posts, add delays |
-| Message too long | Truncate summary to 5 lines max |
-| Webhook rotation/expiry | Document how to update `.env` |
+| 변수 | 기본값 | 설명 |
+|------|--------|------|
+| `LLM_PROVIDER` | `claude-code` | LLM 프로바이더 선택 |
+| `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama 서버 주소 |
+| `OLLAMA_MODEL` | `qwen3:32b` | Ollama 모델명 |
+| `SLACK_BOT_TOKEN` | — | Slack Bot Token (xoxb-...) |
+| `SLACK_CHANNEL_ID` | — | 게시 대상 채널 ID |
 
-### Verification
-- Manual `curl` test with sample payload succeeds
-- Message renders correctly in Slack (formatting, links, emoji)
-- `.env` is in `.gitignore` and not tracked by git
+### Mode B: Claude Code Agent (`CLAUDE.md`)
+
+Claude Code가 모든 단계를 자율 수행한다. WebSearch/WebFetch 등 내장 도구를 활용하며,
+websearch 타입 소스도 처리 가능.
+
+```bash
+claude -p "CLAUDE.md의 지시에 따라 보안 뉴스 수집 파이프라인을 실행해줘"
+```
+
+### Mode C: Interactive Bot (`bot.js`)
+
+Slack에서 멘션으로 대화형 질의. Claude Code CLI를 세션 기반으로 호출.
+
+```bash
+npm start
+```
 
 ---
 
-## Phase 5: State Management & Deduplication
+## LLM Provider 추상화
 
-### Objective
-Implement reliable tracking of posted articles to prevent duplicates across agent executions.
+모든 프로바이더는 두 가지 메서드를 구현한다:
 
-### State File (`state/posted_articles.json`)
-```json
-{
-  "last_updated": "2026-03-30T09:00:00Z",
-  "articles": {
-    "thehackernews": [
-      {
-        "url_hash": "a1b2c3d4",
-        "title": "Critical RCE in Apache...",
-        "posted_at": "2026-03-30T09:00:00Z"
-      }
-    ],
-    "boannews": []
-  }
+```javascript
+interface LLMProvider {
+  complete(prompt: string, options?: CompletionOptions): Promise<string>
+  structured(prompt: string, options?: CompletionOptions): Promise<object>
 }
 ```
 
-### Deduplication Logic
-1. Generate hash from article URL (first 8 chars of SHA-256)
-2. Before posting, check if `url_hash` exists in state file
-3. If exists → skip (already posted)
-4. If not → post and add to state file
-5. After all posts, commit updated state file to git
+| 프로바이더 | 장점 | 단점 | 적합한 용도 |
+|-----------|------|------|-----------|
+| **claude-code** | 높은 한국어 품질, 도구 사용 | 클라우드 의존, 비용 | 프로덕션, 고품질 요약 |
+| **ollama** | 무료, 로컬 실행, 데이터 보안 | 품질 편차, GPU 필요 | 개발/테스트, 비용 절감 |
 
-### State File Maintenance
-- **Retention**: Keep last 500 articles per source (older entries pruned)
-- **Why 500**: Prevents unbounded file growth; 500 articles ≈ 2-3 months at current volumes
-- **Pruning**: On each execution, if a source exceeds 500 entries, remove oldest
+### 향후 확장: SCOUT+CRITIC 하이브리드
 
-### Git as State Store
-- Cloud scheduled agents get a fresh clone each run
-- Agent commits `posted_articles.json` after each execution
-- Next execution's clone includes the latest state
-- Commit message format: `chore(state): update posted articles [YYYY-MM-DD HH:MM]`
-
-### Risks
-| Risk | Mitigation |
-|------|------------|
-| Concurrent executions cause conflicts | Cloud schedule minimum interval is 1 hour; unlikely |
-| State file corruption | JSON validation before write; keep backup in commit history |
-| Git push failure | Agent retries once; state is recoverable from last good commit |
-
-### Verification
-- Run agent twice in succession → no duplicate posts
-- State file is valid JSON after each execution
-- Git log shows state update commits
-- File size stays bounded (pruning works)
+```
+SCOUT (로컬 LLM) → 1차 분류/필터링 → 🟡🟢만 처리
+                                      🟠🔴 → CRITIC (클라우드) → 정밀 분석
+```
 
 ---
 
-## Phase 6: Schedule Automation & Monitoring
+## 뉴스 소스
 
-### Objective
-Register the Claude Code cloud schedule and establish monitoring practices.
-
-### Schedule Configuration
-- **Type**: Claude Code Cloud Scheduled Task
-- **Repository**: GitHub `secnews-bot` repo
-- **Schedule**: Every 3 hours (`0 */3 * * *`)
-- **Prompt**: "Read CLAUDE.md and execute the security news collection pipeline"
-- **Branch**: `claude/` prefix (default for cloud agents)
-
-### Registration
-Use `/schedule` skill in Claude Code CLI:
-```
-/schedule create
-- repo: <github-username>/secnews-bot
-- cron: 0 */3 * * *
-- prompt: "Follow CLAUDE.md instructions to collect and post security news"
-```
-
-### Monitoring Checklist
-- [ ] Check git log for state update commits (confirms execution happened)
-- [ ] Review Slack channel for new posts (confirms pipeline works end-to-end)
-- [ ] Spot-check 3-5 summaries against original articles (confirms quality)
-- [ ] Verify no duplicate posts in Slack (confirms deduplication works)
-- [ ] Check for skipped sources in agent logs (confirms error handling)
-
-### Tuning Parameters
-| Parameter | Default | Adjustable |
-|-----------|---------|------------|
-| Execution interval | 3 hours | 1-24 hours |
-| Max articles per source per run | 5 | 1-20 |
-| Summary length | 3-5 lines | 2-10 lines |
-| State retention | 500 per source | 100-1000 |
-
-### Risks
-| Risk | Mitigation |
-|------|------------|
-| Schedule stops running silently | Weekly manual check of git log timestamps |
-| Agent costs accumulate | Monitor API usage; adjust interval if needed |
-| Source site structure changes break parsing | AI-based parsing is resilient; manual fix if needed |
-
-### Verification
-- First automated execution completes successfully
-- Slack channel receives posts without manual intervention
-- Schedule persists across days (not session-scoped)
+| # | 소스 | 타입 | 언어 | 분류 |
+|---|------|------|------|------|
+| 1 | 보안뉴스 | RSS | KR | 국내 보안 정책/사건 |
+| 2 | 데일리시큐 | RSS | KR | 해킹/악성코드 |
+| 3 | The Hacker News | RSS | EN | 글로벌 위협 |
+| 4 | BleepingComputer | RSS | EN | 랜섬웨어/인프라 |
+| 5 | KISA 보호나라 | WebSearch | KR | 공식 보안 권고 |
+| 6 | Exploit Database | RSS | EN | PoC/익스플로잇 |
 
 ---
 
-## Future Phases (Post-MVP)
+## 파이프라인 흐름
 
-> Not in scope for MVP. Documented for roadmap visibility.
+```
+1. config/sources.json 로드
+2. state/posted_articles.json 로드
+3. 소스별 RSS 피드 수집 (fetchRSS)
+4. 필터링: 마지막 실행 이후 기사만, 중복 제거 (url_hash)
+5. 기사별:
+   a. 원문 본문 fetch (fetchArticleBody) — 실패시 description 폴백
+   b. LLM으로 요약 + 심각도 + 카테고리 생성 (summarizeArticle)
+   c. Slack 메시지 포맷팅 (formatSlackMessage)
+   d. Slack 게시 (postToSlack) — 소스당 최대 5개, 1초 간격
+6. posted_articles.json 업데이트 + 저장
+```
 
-- **Phase 7**: Multi-channel distribution (X/Twitter, blog, cafe)
-- **Phase 8**: Engagement monitoring (views, comments, reactions)
-- **Phase 9**: Deep content creation (blog posts, YouTube scripts from trending topics)
-- **Phase 10**: Comment management and community interaction
+---
+
+## Slack 메시지 형식
+
+```
+🔒 [출처명] 기사 제목
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ 심각도: 🔴 긴급
+
+📝 AI 요약:
+요약 내용 3~5줄. 영향 범위와 대응 방법 포함.
+
+🏷️ 카테고리: 분류
+🔗 원문: URL
+🕐 발행: YYYY-MM-DD
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+---
+
+## 심각도 분류
+
+| 심각도 | 기준 |
+|--------|------|
+| 🔴 긴급 | CVSS 9.0+, in-the-wild 공격, CISA KEV, 광범위 영향 |
+| 🟠 높음 | CVSS 7.0-8.9, PoC 공개, 주요 SW, 국가 기관 권고 |
+| 🟡 보통 | CVSS 4.0-6.9, 조건부 악용, 제한적 영향 |
+| 🟢 낮음 | 정보성, 동향, 정책 예고 |
+
+---
+
+## 오류 처리
+
+| 오류 | 대응 |
+|------|------|
+| RSS fetch 실패 | 해당 소스 건너뛰고 계속 |
+| 원문 fetch 실패 | description만으로 요약 (폴백) |
+| LLM 호출 실패 | 해당 기사 건너뛰고 계속 |
+| Slack API 실패 | 에러 로그 후 다음 실행에서 재시도 |
+| 0건 수집 | 정상 종료 (상태 파일 미변경) |
+
+---
+
+## 향후 계획
+
+### 단기
+
+- [ ] SCOUT+CRITIC 하이브리드 프로바이더 구현
+- [ ] websearch 소스 로컬 지원 (SearXNG 연동)
+- [ ] 파이프라인 단위 테스트 추가
+
+### 중기 — Slack 에이전트 확장
+
+- [ ] **Jira 관리 에이전트**: 이슈 조회/생성, 스프린트 리포트 (MCP 기반)
+- [ ] **Email 관리 에이전트**: 미읽은 메일 요약, 분류 (Gmail MCP 기반)
+- [ ] 프롬프트 라우터: 멘션 텍스트 의도 분류 → 적절한 에이전트 디스패치
+
+### 장기
+
+- [ ] 멀티 채널 배포 (X/Twitter, 블로그)
+- [ ] 기사 트렌드 분석 대시보드
+- [ ] 로컬 LLM 전용 경량 모드 (GPU 없이 CPU 추론)

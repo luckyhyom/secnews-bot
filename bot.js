@@ -203,31 +203,26 @@ app.event("app_mention", async ({ event, say }) => {
       if (result.session_id && !sessionId) {
         sessions.set(threadTs, result.session_id);
       }
-      response = result.result || result.text || String(result);
+      response = result.result || result.text || JSON.stringify(result);
+      console.log(`[응답] 길이: ${response.length}자, 타입: ${typeof response}`);
     } else {
       // 로컬 LLM 모드: Node.js가 API 호출, LLM은 분석/요약만
       response = await handleWithProvider(text, intent, event.user);
     }
 
-    // Slack 메시지 길이 제한 (약 4000자씩 분할)
+    // 로딩 메시지 삭제 후 응답 전송
+    try {
+      await app.client.chat.delete({ channel: event.channel, ts: loading.ts });
+    } catch {}
+
+    // Slack 메시지 길이 제한 (약 3900자씩 분할)
     const MAX_LEN = 3900;
-    if (response.length <= MAX_LEN) {
-      await app.client.chat.update({
-        channel: event.channel,
-        ts: loading.ts,
-        text: response,
-      });
-    } else {
-      // 첫 청크로 로딩 메시지 교체
-      await app.client.chat.update({
-        channel: event.channel,
-        ts: loading.ts,
-        text: response.slice(0, MAX_LEN),
-      });
-      // 나머지를 스레드에 추가
-      for (let i = MAX_LEN; i < response.length; i += MAX_LEN) {
-        await say({ text: response.slice(i, i + MAX_LEN), thread_ts: threadTs });
-      }
+    const chunks = [];
+    for (let i = 0; i < response.length; i += MAX_LEN) {
+      chunks.push(response.slice(i, i + MAX_LEN));
+    }
+    for (const chunk of chunks) {
+      await say({ text: chunk, thread_ts: threadTs });
     }
   } catch (err) {
     console.error("오류:", err.message);
@@ -240,11 +235,10 @@ app.event("app_mention", async ({ event, say }) => {
       errorText = errorText.slice(0, 200) + "...";
     }
 
-    await app.client.chat.update({
-      channel: event.channel,
-      ts: loading.ts,
-      text: errorText,
-    });
+    try {
+      await app.client.chat.delete({ channel: event.channel, ts: loading.ts });
+    } catch {}
+    await say({ text: errorText, thread_ts: threadTs });
   }
 });
 

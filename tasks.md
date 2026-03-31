@@ -48,7 +48,7 @@
 - [x] `src/llm/index.js` — Provider 팩토리 (`createProvider`)
 - [x] `src/llm/claude-code.js` — Claude Code CLI 프로바이더
 - [x] `src/llm/ollama.js` — Ollama REST API 프로바이더
-- [x] `src/collectors/rss.js` — RSS/Atom 피드 파서 (코드 기반)
+- [x] `src/collectors/rss.js` — RSS/Atom 피드 파서 (EUC-KR 인코딩 지원)
 - [x] `src/analyzers/summarizer.js` — LLM 요약 + 심각도/카테고리 분류
 - [x] `src/publishers/slack.js` — Slack 게시 + 메시지 포맷
 - [x] `src/state.js` — 상태 관리자 (중복 체크, pruning)
@@ -61,7 +61,7 @@
 
 ---
 
-## 5단계: 파이프라인 테스트 및 안정화
+## 5단계: 파이프라인 테스트 및 안정화 🔶
 
 - [x] `--dry-run` 모드로 전체 파이프라인 실행 테스트
 - [x] RSS 수집 → 필터링 → 요약 → 포맷 흐름 검증
@@ -78,41 +78,40 @@
 - [x] `src/agents/jira-prompt.js` — Jira 시스템 프롬프트 (JQL 변환 가이드 포함)
 - [x] `src/agents/email-prompt.js` — Email 시스템 프롬프트
 - [x] `src/connectors/jira.js` — Jira REST API 클라이언트
-- [x] `src/connectors/gmail.js` — Gmail API 클라이언트 (googleapis 기반)
-- [x] `src/agents/jira.js` — Jira 에이전트 오케스트레이터 (Ollama용)
-- [x] `src/agents/email.js` — Email 에이전트 오케스트레이터 (Ollama용)
-- [x] `src/auth/token-store.js` — 사용자별 OAuth 토큰 암호화 저장소
-- [x] `src/auth/oauth-flow.js` — Gmail OAuth 2.0 인증 플로우
+- [x] `src/agents/jira.js` — Jira 에이전트 오케스트레이터
+- [x] `src/agents/email.js` — Email 에이전트 오케스트레이터
+- [x] `src/auth/token-store.js` — 사용자별 토큰 암호화 저장소 (AES-256-GCM)
 - [x] `.mcp.json` — Atlassian MCP 서버 설정
-- [x] `bot.js` — 프롬프트 라우터 통합 + /connect-email 명령 추가
-- [x] `googleapis` 의존성 추가
-- [x] `.gitignore` — state/tokens.json 제외 추가
+- [x] `bot.js` — 프롬프트 라우터 통합 + connect-email 명령
 - [x] 라우터 정확도 테스트 (7개 시나리오 통과)
 - [x] 모든 모듈 임포트 검증 완료
 
 ---
 
-## 7단계: Jira/Email 연동 테스트
+## 7단계: 연동 테스트 🔶
 
 - [x] Jira API Token 발급 및 `.env`에 설정
-- [x] Jira 이슈 검색 동작 확인 (API 엔드포인트 /search/jql 마이그레이션 완료)
-- [ ] MCP 도구가 Claude Code CLI에서 정상 로드되는지 확인
+- [x] Jira 이슈 검색 동작 확인 (API 엔드포인트 /search/jql 마이그레이션)
 - [x] Google Cloud Console에서 OAuth 클라이언트 생성
 - [x] OAuth 동의 화면 설정 및 테스트 사용자 등록
-- [x] `connect-email` 명령을 멘션 기반으로 변경 (`app.message` → `app_mention` 내부)
-- [ ] Gmail OAuth 인증 → 메일 조회 흐름 테스트
+- [x] `connect-email` 명령을 멘션 기반으로 변경
+- [x] Slack 자동 포맷팅 제거 처리 (`<url|text>` → `text`)
+- [x] Slack 메시지 길이 초과 분할 전송 (`chat.update` → `say` 방식)
+- [x] 토큰 리밋 에러 메시지 간소화
+- [x] Slack 대화형 봇 응답 테스트 성공
+- [ ] IMAP 이메일 연동 실테스트 (메일플러그 앱 비밀번호 확인 필요)
 - [ ] Ollama 프로바이더로 Jira/Email 에이전트 테스트
 
 ---
 
-## 8단계: IMAP 기반 범용 이메일 연동
+## 8단계: IMAP 기반 범용 이메일 연동 ✅
 
-- [ ] `src/connectors/imap.js` — IMAP 클라이언트 (표준 프로토콜)
-- [ ] Gmail, 메일플러그, 네이버, Outlook 등 멀티 서비스 지원
-- [ ] 인증 방식: 이메일 + 앱 비밀번호 (OAuth 불필요)
-- [ ] `src/connectors/gmail.js`를 IMAP으로 대체 또는 폴백 구조
-- [ ] `@봇 connect-email` 플로우를 IMAP 방식으로 변경
-- [ ] 기존 Gmail OAuth 방식도 선택 가능하도록 유지
+- [x] `src/connectors/imap.js` — IMAP 클라이언트 (imap-simple 기반)
+- [x] Gmail, 메일플러그, 네이버, Outlook 등 멀티 서비스 지원 구조
+- [x] 인증 방식: 이메일 + 앱 비밀번호 (OAuth 불필요)
+- [x] `src/agents/email.js` — Gmail API에서 IMAP으로 전환 완료
+- [x] `bot.js` — connect-email 플로우를 IMAP 방식으로 변경
+- [ ] 실제 IMAP 연동 테스트 (앱 비밀번호 인증 확인)
 
 ---
 
@@ -155,10 +154,10 @@
 |---------|:----:|----------|
 | MVP — 뉴스 자동 게시 | ✅ | 1~3단계 |
 | 로컬 LLM 전환 가능 | ✅ | 4단계 |
-| 파이프라인 안정화 | ⬜ | 5단계 |
-| Jira/Email 에이전트 코드 | ✅ | 6단계 |
-| Jira/Email 연동 테스트 | ⬜ | 7단계 |
-| IMAP 범용 이메일 | ⬜ | 8단계 |
+| 파이프라인 안정화 | 🔶 | 5단계 |
+| 멀티 에이전트 코드 | ✅ | 6단계 |
+| 연동 테스트 | 🔶 | 7단계 |
+| IMAP 범용 이메일 코드 | ✅ | 8단계 |
 | 비용 최적화 (하이브리드) | ⬜ | 9단계 |
 | 완전 로컬 자립 | ⬜ | 10단계 |
-| 무인 자동화 | ⬜ | 10단계 |
+| 무인 자동화 | ⬜ | 11단계 |

@@ -1,71 +1,322 @@
 {
-  "last_updated": "2026-03-31T11:46:00Z",
+  "last_updated": "2026-03-31T06:08:13.022Z",
   "articles": {
     "boannews": [
-      {"url_hash": "1a55e5c0", "title": "[특집] 안티치트 관련 SW 등 게임!… 게임 업체들의 고민", "posted_at": "2026-03-30T00:35:03Z"},
-      {"url_hash": "cb23e053", "title": "이용자의 보안위협수준이 점점높아져, 소비자들이 느끼는 일상적인 불안 증가", "posted_at": "2026-03-30T00:35:12Z"},
-      {"url_hash": "a5e169cb", "title": "자동 배포체계의 변환 과정… 오픈 소스플랫폼의 공급망 위험", "posted_at": "2026-03-30T00:35:20Z"},
-      {"url_hash": "51270145", "title": "[Global Security TOP 100] 보안사 경영진들이 가장 우려하는 리스크", "posted_at": "2026-03-30T00:35:30Z"},
-      {"url_hash": "825e5557", "title": "2026년 4월 '보안&관리' 분야 컨퍼런스 이벤트 채용 공고 일정", "posted_at": "2026-03-30T00:35:38Z"},
-      {"url_hash": "871a0d4a", "title": "[뉴스] 한국정보통신", "posted_at": "2026-03-30T06:45:27Z"},
-      {"url_hash": "526f0d04", "title": "IP 카메라 보안 위협 심각…해킹 영상 암시장 거래 확산", "posted_at": "2026-03-31T02:46:00Z"},
-      {"url_hash": "26f95a0a", "title": "NSHC, AI 기반 공격표면관리 플랫폼 어택워치 기능 강화", "posted_at": "2026-03-31T01:35:00Z"},
-      {"url_hash": "e61be7ce", "title": "관공서·공공기관 개인정보 유출 사건 급증…보안 역량 강화 시급", "posted_at": "2026-03-31T01:27:00Z"}
+      {
+        "url_hash": "1a55e5c0",
+        "title": "[특집] 안티치트 관련 SW 등 게임!… 게임 업체들의 고민",
+        "posted_at": "2026-03-30T00:35:03Z"
+      },
+      {
+        "url_hash": "cb23e053",
+        "title": "이용자의 보안위협수준이 점점높아져, 소비자들이 느끼는 일상적인 불안 증가",
+        "posted_at": "2026-03-30T00:35:12Z"
+      },
+      {
+        "url_hash": "a5e169cb",
+        "title": "자동 배포체계의 변환 과정… 오픈 소스플랫폼의 공급망 위험",
+        "posted_at": "2026-03-30T00:35:20Z"
+      },
+      {
+        "url_hash": "51270145",
+        "title": "[Global Security TOP 100] 보안사 경영진들이 가장 우려하는 리스크",
+        "posted_at": "2026-03-30T00:35:30Z"
+      },
+      {
+        "url_hash": "825e5557",
+        "title": "2026년 4월 '보안&관리' 분야 컨퍼런스 이벤트 채용 공고 일정",
+        "posted_at": "2026-03-30T00:35:38Z"
+      },
+      {
+        "url_hash": "871a0d4a",
+        "title": "[뉴스] 한국정보통신",
+        "posted_at": "2026-03-30T06:45:27Z"
+      },
+      {
+        "url_hash": "526f0d04",
+        "title": "IP 카메라 보안 위협 심각…해킹 영상 암시장 거래 확산",
+        "posted_at": "2026-03-31T02:46:00Z"
+      },
+      {
+        "url_hash": "26f95a0a",
+        "title": "NSHC, AI 기반 공격표면관리 플랫폼 어택워치 기능 강화",
+        "posted_at": "2026-03-31T01:35:00Z"
+      },
+      {
+        "url_hash": "e61be7ce",
+        "title": "관공서·공공기관 개인정보 유출 사건 급증…보안 역량 강화 시급",
+        "posted_at": "2026-03-31T01:27:00Z"
+      },
+      {
+        "url_hash": "778dd906",
+        "title": "�ѱ����ͳ������, ���������� ���ֱ� ���� �����ܡ� ����",
+        "posted_at": "2026-03-31T06:04:42.836Z"
+      },
+      {
+        "url_hash": "ed3b5398",
+        "title": "����, 2029����� PQC ���� ����... ���� ���� ��ȣ �ô� �մ���",
+        "posted_at": "2026-03-31T06:05:20.962Z"
+      },
+      {
+        "url_hash": "f7ea9636",
+        "title": "�̶� ���� ����, ���� ���� �ܳ� ���̹� ���� 130% ����",
+        "posted_at": "2026-03-31T06:05:46.392Z"
+      },
+      {
+        "url_hash": "73b26553",
+        "title": "KISIA, 2026�� ICT���ջ������ �η¾缺 ��� ������ ����",
+        "posted_at": "2026-03-31T06:06:07.851Z"
+      },
+      {
+        "url_hash": "04f9a93a",
+        "title": "[�ѱ��������б���� ������ ���ϴ�-36] ���̹������ �� �ݺ��Ǵ°�: AI �ô�, �ΰ��ɸ��� ������ ����",
+        "posted_at": "2026-03-31T06:06:29.980Z"
+      },
+      {
+        "url_hash": "887d17ac",
+        "title": "연수구, 2026년 스마트빌리지 공모사업 최종 선정",
+        "posted_at": "2026-03-31T06:07:52.758Z"
+      },
+      {
+        "url_hash": "5df3a1a1",
+        "title": "조달청, 2026 대한민국 AI 혁신조달 대전 개최",
+        "posted_at": "2026-03-31T06:08:11.578Z"
+      }
     ],
     "dailysecu": [
-      {"url_hash": "a6ff662b", "title": "이란 해커그룹, FBI 국장 개인 이메일 침해…심리전·파괴공격 결합된 사이버전 확산", "posted_at": "2026-03-30T00:35:48Z"},
-      {"url_hash": "070bb159", "title": "[CISO 조찬] 빔소프트웨어 존 제스터 CRO \"데이터 보안 없이는 AI도, 데이터 복원력 없이는 AI 신뢰도 없다\"", "posted_at": "2026-03-30T00:35:58Z"},
-      {"url_hash": "49e52efb", "title": "[CISO 조찬] 이원태 교수 \"AI 3강, 보안 없이 불가능\"…한국형 AI 보안정책 전환 필요성 강조", "posted_at": "2026-03-30T00:36:07Z"},
-      {"url_hash": "3f015f9b", "title": "네덜란드 명문 구단 아약스 시스템 뚫렸다…수십만 팬 계정 위험 노출", "posted_at": "2026-03-30T00:36:16Z"},
-      {"url_hash": "e16f59db", "title": "맥OS도 안심 못한다…클라우드플레어 사칭한 새 정보탈취 악성코드 등장", "posted_at": "2026-03-30T00:36:25Z"},
-      {"url_hash": "3e9fff89", "title": "글로벌 온라인 게임 서비스 기업 EEZE, 한국어 기반 인재 채용 확대", "posted_at": "2026-03-30T06:45:42Z"},
-      {"url_hash": "d713ba88", "title": "F5 BIG-IP 치명적 취약점 CVE-2025-53521, RCE로 격상…CVSS 9.8", "posted_at": "2026-03-31T09:10:35Z"},
-      {"url_hash": "a155f330", "title": "KISA, 랜섬웨어 전주기 대응 추진단 발족…통합 대응체계 구축", "posted_at": "2026-03-31T09:21:14Z"},
-      {"url_hash": "8661274e", "title": "ChatGPT·Codex서 드러난 데이터 유출 경로…AI 실행 환경이 새 공격 표면으로", "posted_at": "2026-03-31T08:46:29Z"},
-      {"url_hash": "22581b8e", "title": "전장의 눈이 된 해킹 카메라…IP 카메라 보안, 국가안보 이슈로 격상", "posted_at": "2026-03-31T09:55:49Z"},
-      {"url_hash": "fe701a04", "title": "암호화 트래픽 90% 시대…복호화 없이 위협 잡는 NDR 솔루션 등장", "posted_at": "2026-03-31T09:30:42Z"}
+      {
+        "url_hash": "a6ff662b",
+        "title": "이란 해커그룹, FBI 국장 개인 이메일 침해…심리전·파괴공격 결합된 사이버전 확산",
+        "posted_at": "2026-03-30T00:35:48Z"
+      },
+      {
+        "url_hash": "070bb159",
+        "title": "[CISO 조찬] 빔소프트웨어 존 제스터 CRO \"데이터 보안 없이는 AI도, 데이터 복원력 없이는 AI 신뢰도 없다\"",
+        "posted_at": "2026-03-30T00:35:58Z"
+      },
+      {
+        "url_hash": "49e52efb",
+        "title": "[CISO 조찬] 이원태 교수 \"AI 3강, 보안 없이 불가능\"…한국형 AI 보안정책 전환 필요성 강조",
+        "posted_at": "2026-03-30T00:36:07Z"
+      },
+      {
+        "url_hash": "3f015f9b",
+        "title": "네덜란드 명문 구단 아약스 시스템 뚫렸다…수십만 팬 계정 위험 노출",
+        "posted_at": "2026-03-30T00:36:16Z"
+      },
+      {
+        "url_hash": "e16f59db",
+        "title": "맥OS도 안심 못한다…클라우드플레어 사칭한 새 정보탈취 악성코드 등장",
+        "posted_at": "2026-03-30T00:36:25Z"
+      },
+      {
+        "url_hash": "3e9fff89",
+        "title": "글로벌 온라인 게임 서비스 기업 EEZE, 한국어 기반 인재 채용 확대",
+        "posted_at": "2026-03-30T06:45:42Z"
+      },
+      {
+        "url_hash": "d713ba88",
+        "title": "F5 BIG-IP 치명적 취약점 CVE-2025-53521, RCE로 격상…CVSS 9.8",
+        "posted_at": "2026-03-31T09:10:35Z"
+      },
+      {
+        "url_hash": "a155f330",
+        "title": "KISA, 랜섬웨어 전주기 대응 추진단 발족…통합 대응체계 구축",
+        "posted_at": "2026-03-31T09:21:14Z"
+      },
+      {
+        "url_hash": "8661274e",
+        "title": "ChatGPT·Codex서 드러난 데이터 유출 경로…AI 실행 환경이 새 공격 표면으로",
+        "posted_at": "2026-03-31T08:46:29Z"
+      },
+      {
+        "url_hash": "22581b8e",
+        "title": "전장의 눈이 된 해킹 카메라…IP 카메라 보안, 국가안보 이슈로 격상",
+        "posted_at": "2026-03-31T09:55:49Z"
+      },
+      {
+        "url_hash": "fe701a04",
+        "title": "암호화 트래픽 90% 시대…복호화 없이 위협 잡는 NDR 솔루션 등장",
+        "posted_at": "2026-03-31T09:30:42Z"
+      }
     ],
     "thehackernews": [
-      {"url_hash": "61bc3bc2", "title": "Iran-Linked Hackers Breach FBI Director's Personal Email, Hit Stryker With Wiper Attack", "posted_at": "2026-03-30T00:35:32Z"},
-      {"url_hash": "3100a14f", "title": "Citrix NetScaler Under Active Recon for CVE-2026-3055 (CVSS 9.3) Memory Overread Bug", "posted_at": "2026-03-30T00:35:45Z"},
-      {"url_hash": "f3c27614", "title": "TA446 Deploys DarkSword iOS Exploit Kit in Targeted Spear-Phishing Campaign", "posted_at": "2026-03-30T00:35:58Z"},
-      {"url_hash": "adf98943", "title": "CISA Adds CVE-2025-53521 to KEV After Active F5 BIG-IP APM Exploitation", "posted_at": "2026-03-30T00:36:13Z"},
-      {"url_hash": "81e28439", "title": "Apple Sends Lock Screen Alerts to Outdated iPhones Over Active Web-Based Exploits", "posted_at": "2026-03-30T00:36:25Z"},
-      {"url_hash": "0bc9a4dd", "title": "TeamPCP Pushes Malicious Telnyx Versions to PyPI, Hides Stealer in WAV Files", "posted_at": "2026-03-30T14:25:57Z"},
-      {"url_hash": "618b9e23", "title": "Open VSX Bug Let Malicious VS Code Extensions Bypass Pre-Publish Security Checks", "posted_at": "2026-03-30T14:26:14Z"},
-      {"url_hash": "af579332", "title": "AitM Phishing Targets TikTok Business Accounts Using Cloudflare Turnstile Evasion", "posted_at": "2026-03-30T14:26:31Z"},
-      {"url_hash": "aa8bb3a7", "title": "We Are At War", "posted_at": "2026-03-30T14:26:50Z"},
-      {"url_hash": "c64a82a4", "title": "Bearlyfy Hits Russian Firms with Custom GenieLocker Ransomware", "posted_at": "2026-03-30T14:27:06Z"},
-      {"url_hash": "6e822048", "title": "OpenAI Patches ChatGPT Data Exfiltration Flaw and Codex GitHub Token Vulnerability", "posted_at": "2026-03-30T18:05:00Z"},
-      {"url_hash": "e4e2c62e", "title": "DeepLoad Malware Uses ClickFix and WMI Persistence to Steal Browser Credentials", "posted_at": "2026-03-30T15:47:00Z"}
+      {
+        "url_hash": "61bc3bc2",
+        "title": "Iran-Linked Hackers Breach FBI Director's Personal Email, Hit Stryker With Wiper Attack",
+        "posted_at": "2026-03-30T00:35:32Z"
+      },
+      {
+        "url_hash": "3100a14f",
+        "title": "Citrix NetScaler Under Active Recon for CVE-2026-3055 (CVSS 9.3) Memory Overread Bug",
+        "posted_at": "2026-03-30T00:35:45Z"
+      },
+      {
+        "url_hash": "f3c27614",
+        "title": "TA446 Deploys DarkSword iOS Exploit Kit in Targeted Spear-Phishing Campaign",
+        "posted_at": "2026-03-30T00:35:58Z"
+      },
+      {
+        "url_hash": "adf98943",
+        "title": "CISA Adds CVE-2025-53521 to KEV After Active F5 BIG-IP APM Exploitation",
+        "posted_at": "2026-03-30T00:36:13Z"
+      },
+      {
+        "url_hash": "81e28439",
+        "title": "Apple Sends Lock Screen Alerts to Outdated iPhones Over Active Web-Based Exploits",
+        "posted_at": "2026-03-30T00:36:25Z"
+      },
+      {
+        "url_hash": "0bc9a4dd",
+        "title": "TeamPCP Pushes Malicious Telnyx Versions to PyPI, Hides Stealer in WAV Files",
+        "posted_at": "2026-03-30T14:25:57Z"
+      },
+      {
+        "url_hash": "618b9e23",
+        "title": "Open VSX Bug Let Malicious VS Code Extensions Bypass Pre-Publish Security Checks",
+        "posted_at": "2026-03-30T14:26:14Z"
+      },
+      {
+        "url_hash": "af579332",
+        "title": "AitM Phishing Targets TikTok Business Accounts Using Cloudflare Turnstile Evasion",
+        "posted_at": "2026-03-30T14:26:31Z"
+      },
+      {
+        "url_hash": "aa8bb3a7",
+        "title": "We Are At War",
+        "posted_at": "2026-03-30T14:26:50Z"
+      },
+      {
+        "url_hash": "c64a82a4",
+        "title": "Bearlyfy Hits Russian Firms with Custom GenieLocker Ransomware",
+        "posted_at": "2026-03-30T14:27:06Z"
+      },
+      {
+        "url_hash": "6e822048",
+        "title": "OpenAI Patches ChatGPT Data Exfiltration Flaw and Codex GitHub Token Vulnerability",
+        "posted_at": "2026-03-30T18:05:00Z"
+      },
+      {
+        "url_hash": "e4e2c62e",
+        "title": "DeepLoad Malware Uses ClickFix and WMI Persistence to Steal Browser Credentials",
+        "posted_at": "2026-03-30T15:47:00Z"
+      }
     ],
     "bleepingcomputer": [
-      {"url_hash": "2a2a1c2d", "title": "FBI confirms hack of Director Patel's personal email inbox", "posted_at": "2026-03-30T00:36:40Z"},
-      {"url_hash": "393b5140", "title": "File read flaw in Smart Slider plugin impacts 500K WordPress sites", "posted_at": "2026-03-30T00:36:52Z"},
-      {"url_hash": "fee0b983", "title": "New Infinity Stealer malware grabs macOS data via ClickFix lures", "posted_at": "2026-03-30T00:37:05Z"},
-      {"url_hash": "cdbcb252", "title": "Backdoored Telnyx PyPI package pushes malware hidden in WAV audio", "posted_at": "2026-03-30T00:37:19Z"},
-      {"url_hash": "d3975599", "title": "Fake VS Code alerts on GitHub spread malware to developers", "posted_at": "2026-03-30T00:37:32Z"},
-      {"url_hash": "96722ce6", "title": "European Commission investigating breach after Amazon cloud account hack", "posted_at": "2026-03-30T14:27:21Z"},
-      {"url_hash": "0a43e14d", "title": "Dutch Police discloses security breach after phishing attack", "posted_at": "2026-03-30T14:27:37Z"},
-      {"url_hash": "33914870", "title": "Windows 11 KB5079391 update rolls out Smart App Control improvements", "posted_at": "2026-03-30T14:27:55Z"},
-      {"url_hash": "1fdf8ecd", "title": "Anti-piracy coalition takes down AnimePlay app with 5 million users", "posted_at": "2026-03-30T14:28:10Z"},
-      {"url_hash": "796dc1ea", "title": "Agentic GRC: Teams Get the Tech. The Mindset Shift Is What's Missing.", "posted_at": "2026-03-30T14:28:28Z"},
-      {"url_hash": "817b6c94", "title": "Healthcare tech firm CareCloud says hackers stole patient data", "posted_at": "2026-03-30T21:44:31Z"},
-      {"url_hash": "0e5cb462", "title": "New RoadK1ll WebSocket implant used to pivot on breached networks", "posted_at": "2026-03-30T20:49:22Z"}
+      {
+        "url_hash": "2a2a1c2d",
+        "title": "FBI confirms hack of Director Patel's personal email inbox",
+        "posted_at": "2026-03-30T00:36:40Z"
+      },
+      {
+        "url_hash": "393b5140",
+        "title": "File read flaw in Smart Slider plugin impacts 500K WordPress sites",
+        "posted_at": "2026-03-30T00:36:52Z"
+      },
+      {
+        "url_hash": "fee0b983",
+        "title": "New Infinity Stealer malware grabs macOS data via ClickFix lures",
+        "posted_at": "2026-03-30T00:37:05Z"
+      },
+      {
+        "url_hash": "cdbcb252",
+        "title": "Backdoored Telnyx PyPI package pushes malware hidden in WAV audio",
+        "posted_at": "2026-03-30T00:37:19Z"
+      },
+      {
+        "url_hash": "d3975599",
+        "title": "Fake VS Code alerts on GitHub spread malware to developers",
+        "posted_at": "2026-03-30T00:37:32Z"
+      },
+      {
+        "url_hash": "96722ce6",
+        "title": "European Commission investigating breach after Amazon cloud account hack",
+        "posted_at": "2026-03-30T14:27:21Z"
+      },
+      {
+        "url_hash": "0a43e14d",
+        "title": "Dutch Police discloses security breach after phishing attack",
+        "posted_at": "2026-03-30T14:27:37Z"
+      },
+      {
+        "url_hash": "33914870",
+        "title": "Windows 11 KB5079391 update rolls out Smart App Control improvements",
+        "posted_at": "2026-03-30T14:27:55Z"
+      },
+      {
+        "url_hash": "1fdf8ecd",
+        "title": "Anti-piracy coalition takes down AnimePlay app with 5 million users",
+        "posted_at": "2026-03-30T14:28:10Z"
+      },
+      {
+        "url_hash": "796dc1ea",
+        "title": "Agentic GRC: Teams Get the Tech. The Mindset Shift Is What's Missing.",
+        "posted_at": "2026-03-30T14:28:28Z"
+      },
+      {
+        "url_hash": "817b6c94",
+        "title": "Healthcare tech firm CareCloud says hackers stole patient data",
+        "posted_at": "2026-03-30T21:44:31Z"
+      },
+      {
+        "url_hash": "0e5cb462",
+        "title": "New RoadK1ll WebSocket implant used to pivot on breached networks",
+        "posted_at": "2026-03-30T20:49:22Z"
+      }
     ],
     "kisa": [
-      {"url_hash": "5b54d84d", "title": "Langflow 제품 보안 업데이트 권고", "posted_at": "2026-03-30T00:30:00Z"},
-      {"url_hash": "40f5b1ab", "title": "Citrix 제품 보안 업데이트 권고", "posted_at": "2026-03-30T00:30:00Z"},
-      {"url_hash": "6a962721", "title": "TP-Link 제품 보안 업데이트 권고", "posted_at": "2026-03-30T00:30:00Z"},
-      {"url_hash": "743f42bf", "title": "불법 스트리밍 앱으로 인한 개인정보 유출 및 문자 무단 발송 주의 권고", "posted_at": "2026-03-30T00:30:00Z"},
-      {"url_hash": "fc684781", "title": "Oracle 제품 보안 업데이트 권고", "posted_at": "2026-03-30T00:30:00Z"}
+      {
+        "url_hash": "5b54d84d",
+        "title": "Langflow 제품 보안 업데이트 권고",
+        "posted_at": "2026-03-30T00:30:00Z"
+      },
+      {
+        "url_hash": "40f5b1ab",
+        "title": "Citrix 제품 보안 업데이트 권고",
+        "posted_at": "2026-03-30T00:30:00Z"
+      },
+      {
+        "url_hash": "6a962721",
+        "title": "TP-Link 제품 보안 업데이트 권고",
+        "posted_at": "2026-03-30T00:30:00Z"
+      },
+      {
+        "url_hash": "743f42bf",
+        "title": "불법 스트리밍 앱으로 인한 개인정보 유출 및 문자 무단 발송 주의 권고",
+        "posted_at": "2026-03-30T00:30:00Z"
+      },
+      {
+        "url_hash": "fc684781",
+        "title": "Oracle 제품 보안 업데이트 권고",
+        "posted_at": "2026-03-30T00:30:00Z"
+      }
     ],
     "exploitdb": [
-      {"url_hash": "56776f88", "title": "WordPress Backup Migration 1.3.7 - Remote Command Execution", "posted_at": "2026-03-30T00:30:00Z"},
-      {"url_hash": "cb81574c", "title": "mailcow 2025-01a - Host Header Password Reset Poisoning", "posted_at": "2026-03-30T00:30:00Z"},
-      {"url_hash": "e4dc804a", "title": "Easy File Sharing Web Server v7.2 - Buffer Overflow", "posted_at": "2026-03-30T00:30:00Z"},
-      {"url_hash": "12857cc5", "title": "WeGIA 3.5.0 - SQL Injection", "posted_at": "2026-03-30T00:30:00Z"},
-      {"url_hash": "f87e6a81", "title": "Boss Mini v1.4.0 - Local File Inclusion (LFI)", "posted_at": "2026-03-30T00:30:00Z"}
+      {
+        "url_hash": "56776f88",
+        "title": "WordPress Backup Migration 1.3.7 - Remote Command Execution",
+        "posted_at": "2026-03-30T00:30:00Z"
+      },
+      {
+        "url_hash": "cb81574c",
+        "title": "mailcow 2025-01a - Host Header Password Reset Poisoning",
+        "posted_at": "2026-03-30T00:30:00Z"
+      },
+      {
+        "url_hash": "e4dc804a",
+        "title": "Easy File Sharing Web Server v7.2 - Buffer Overflow",
+        "posted_at": "2026-03-30T00:30:00Z"
+      },
+      {
+        "url_hash": "12857cc5",
+        "title": "WeGIA 3.5.0 - SQL Injection",
+        "posted_at": "2026-03-30T00:30:00Z"
+      },
+      {
+        "url_hash": "f87e6a81",
+        "title": "Boss Mini v1.4.0 - Local File Inclusion (LFI)",
+        "posted_at": "2026-03-30T00:30:00Z"
+      }
     ]
   }
 }

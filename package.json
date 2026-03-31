@@ -1,0 +1,12 @@
+{
+  "name": "secnews-bot",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "dependencies": {
+    "@slack/bolt": "^4.1.0",
+    "dotenv": "^17.3.1"
+  }
+}

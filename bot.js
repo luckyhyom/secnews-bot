@@ -148,7 +148,11 @@ app.event("app_mention", async ({ event, say }) => {
       return;
     }
 
-    const [, host, user, pass] = emailMatch;
+    // Slack 자동 포맷팅 제거 (<url|text> → text, <mailto:email|email> → email)
+    const stripSlack = (s) => s.replace(/<[^|>]+\|([^>]+)>/g, "$1").replace(/<|>/g, "");
+    const host = stripSlack(emailMatch[1]);
+    const user = stripSlack(emailMatch[2]);
+    const pass = stripSlack(emailMatch[3]);
     tokenStore.saveToken(event.user, { host, user, pass });
 
     await say({
@@ -205,11 +209,26 @@ app.event("app_mention", async ({ event, say }) => {
       response = await handleWithProvider(text, intent, event.user);
     }
 
-    await app.client.chat.update({
-      channel: event.channel,
-      ts: loading.ts,
-      text: response,
-    });
+    // Slack 메시지 길이 제한 (약 4000자씩 분할)
+    const MAX_LEN = 3900;
+    if (response.length <= MAX_LEN) {
+      await app.client.chat.update({
+        channel: event.channel,
+        ts: loading.ts,
+        text: response,
+      });
+    } else {
+      // 첫 청크로 로딩 메시지 교체
+      await app.client.chat.update({
+        channel: event.channel,
+        ts: loading.ts,
+        text: response.slice(0, MAX_LEN),
+      });
+      // 나머지를 스레드에 추가
+      for (let i = MAX_LEN; i < response.length; i += MAX_LEN) {
+        await say({ text: response.slice(i, i + MAX_LEN), thread_ts: threadTs });
+      }
+    }
   } catch (err) {
     console.error("오류:", err.message);
 

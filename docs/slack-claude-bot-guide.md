@@ -1,6 +1,6 @@
 # Slack Claude Code Bot 설정 가이드
 
-Slack 채널에서 `@봇이름`으로 멘션하면 로컬 Claude Code를 호출하여 대화하는 봇.
+Slack 채널에서 `@Claude Bot (Mac Studio)`으로 멘션하면 로컬 Claude Code를 호출하여 대화하는 봇.
 
 ## 프로젝트 구조
 
@@ -112,9 +112,9 @@ npm test
 - `--resume`으로 세션 이어가기 (이전 맥락 기억 확인)
 
 ### Slack에서 수동 테스트
-1. 채널에서 `@봇이름 안녕하세요` 멘션
+1. 채널에서 `@Claude Bot (Mac Studio) 안녕하세요` 멘션
 2. "생각 중..." 표시 후 응답 확인
-3. 같은 스레드에서 `@봇이름 방금 뭐라고 했지?` → 맥락 유지 확인
+3. 같은 스레드에서 `@Claude Bot (Mac Studio) 방금 뭐라고 했지?` → 맥락 유지 확인
 
 ## 동작 방식
 
@@ -131,6 +131,24 @@ npm test
 - 봇 재시작 시 thread ↔ session 매핑 초기화
 - Claude Code 세션은 로컬(`~/.claude/`)에 저장되며 자동 정리됨
 - 오래된 스레드에서 대화 재개 시 세션이 만료되었을 수 있음
+
+### 권한 모드
+
+`bot.js`의 `runClaude`에서 `--permission-mode` 옵션으로 봇의 권한을 제어한다.
+
+| 모드 | 설명 |
+|------|------|
+| `default` | 매 도구 호출마다 승인 필요 (봇에서는 사용 불가) |
+| `acceptEdits` | 파일 읽기/쓰기 허용, bash 명령은 제한 |
+| `bypassPermissions` | 모든 권한 허용 (파일, bash, 네트워크 등) |
+
+현재 설정: `acceptEdits`
+
+**`bypassPermissions` 사용 시 보안 주의사항:**
+- Slack 채널에 접근 가능한 모든 사용자가 멘션으로 로컬 터미널 명령을 실행할 수 있음
+- `rm -rf`, 환경변수 노출, 네트워크 요청 등 위험한 명령이 실행될 수 있음
+- 본인만 접근 가능한 비공개 채널에서만 사용 권장
+- 공유 채널에서는 반드시 `acceptEdits` 이하로 제한할 것
 
 ## 다중 GitHub 계정 SSH 설정 (참고)
 

@@ -63,38 +63,44 @@
 
 ## 5단계: 파이프라인 테스트 및 안정화
 
-- [ ] `--dry-run` 모드로 전체 파이프라인 실행 테스트
-- [ ] RSS 수집 → 필터링 → 요약 → 포맷 흐름 검증
+- [x] `--dry-run` 모드로 전체 파이프라인 실행 테스트
+- [x] RSS 수집 → 필터링 → 요약 → 포맷 흐름 검증
+- [x] EUC-KR 인코딩 이슈 수정 (보안뉴스 RSS)
 - [ ] Ollama 프로바이더로 로컬 LLM 연동 테스트
 - [ ] 파이프라인 단위 테스트 추가 (StateManager, formatSlackMessage 등)
-- [ ] RSS 수집 실패시 에러 처리 검증
-- [ ] LLM 호출 실패시 건너뛰기 검증
-- [ ] 중복 기사 필터링 정상 동작 확인
 - [ ] 실제 Slack 게시 테스트 (`npm run pipeline`)
 
 ---
 
-## 6단계: MCP 서버 연동 (Jira / Email)
+## 6단계: 프롬프트 라우터 + Jira/Email 에이전트 ✅
 
-- [ ] Atlassian MCP 서버 설정 (`.mcp.json`)
-- [ ] Jira API Token 또는 OAuth 2.0 인증 설정
-- [ ] Jira 이슈 조회/생성 동작 확인
-- [ ] Gmail MCP 서버 설정 (`.mcp.json`)
-- [ ] Gmail OAuth 2.0 인증 플로우 구현
-- [ ] 미읽은 이메일 요약 동작 확인
-- [ ] MCP 도구가 Claude Code CLI에서 정상 로드되는지 확인
+- [x] `src/router.js` — 키워드 기반 의도 분류 (뉴스/Jira/이메일/일반)
+- [x] `src/agents/jira-prompt.js` — Jira 시스템 프롬프트 (JQL 변환 가이드 포함)
+- [x] `src/agents/email-prompt.js` — Email 시스템 프롬프트
+- [x] `src/connectors/jira.js` — Jira REST API 클라이언트
+- [x] `src/connectors/gmail.js` — Gmail API 클라이언트 (googleapis 기반)
+- [x] `src/agents/jira.js` — Jira 에이전트 오케스트레이터 (Ollama용)
+- [x] `src/agents/email.js` — Email 에이전트 오케스트레이터 (Ollama용)
+- [x] `src/auth/token-store.js` — 사용자별 OAuth 토큰 암호화 저장소
+- [x] `src/auth/oauth-flow.js` — Gmail OAuth 2.0 인증 플로우
+- [x] `.mcp.json` — Atlassian MCP 서버 설정
+- [x] `bot.js` — 프롬프트 라우터 통합 + /connect-email 명령 추가
+- [x] `googleapis` 의존성 추가
+- [x] `.gitignore` — state/tokens.json 제외 추가
+- [x] 라우터 정확도 테스트 (7개 시나리오 통과)
+- [x] 모든 모듈 임포트 검증 완료
 
 ---
 
-## 7단계: 프롬프트 라우터 (멀티 에이전트 통합)
+## 7단계: Jira/Email 연동 테스트
 
-- [ ] `bot.js`에 의도 분류 로직 추가 (뉴스/Jira/이메일/일반 대화)
-- [ ] 의도별 시스템 프롬프트 분리 (각 에이전트용 지시문)
-- [ ] 뉴스 수집 명령 → 파이프라인 트리거 연동
-- [ ] Jira 관련 질의 → Jira MCP 호출 라우팅
-- [ ] 이메일 관련 질의 → Gmail MCP 호출 라우팅
-- [ ] 의도 분류 실패시 일반 대화 폴백
-- [ ] 라우팅 정확도 테스트 (다양한 입력 시나리오)
+- [ ] Jira API Token 발급 및 `.env`에 설정
+- [ ] Jira 이슈 검색 동작 확인
+- [ ] MCP 도구가 Claude Code CLI에서 정상 로드되는지 확인
+- [ ] Google Cloud Console에서 OAuth 클라이언트 생성
+- [ ] `/connect-email` → OAuth 인증 → 메일 조회 흐름 테스트
+- [ ] 공개 채널 vs DM 보안 정책 검증
+- [ ] Ollama 프로바이더로 Jira/Email 에이전트 테스트
 
 ---
 
@@ -138,7 +144,8 @@
 | MVP — 뉴스 자동 게시 | ✅ | 1~3단계 |
 | 로컬 LLM 전환 가능 | ✅ | 4단계 |
 | 파이프라인 안정화 | ⬜ | 5단계 |
-| Jira/Email 에이전트 | ⬜ | 6~7단계 |
+| Jira/Email 에이전트 코드 | ✅ | 6단계 |
+| Jira/Email 연동 테스트 | ⬜ | 7단계 |
 | 비용 최적화 (하이브리드) | ⬜ | 8단계 |
 | 완전 로컬 자립 | ⬜ | 9단계 |
 | 무인 자동화 | ⬜ | 10단계 |

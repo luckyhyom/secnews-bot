@@ -10,9 +10,11 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.80.0",
     "@slack/bolt": "^4.1.0",
     "dotenv": "^17.3.1",
-    "fast-xml-parser": "^5.2.0"
+    "fast-xml-parser": "^5.2.0",
+    "googleapis": "^148.0.0"
   },
   "devDependencies": {
     "vitest": "^4.1.2"

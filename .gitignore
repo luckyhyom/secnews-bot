@@ -3,5 +3,5 @@
 node_modules/
 *.log
 .vscode/
-.claude/
+.claude/settings.local.json
 state/tokens.json

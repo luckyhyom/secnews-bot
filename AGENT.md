@@ -16,8 +16,9 @@
 ## 도구 목록
 
 ### 이메일 조회
-node scripts/read_email.js --action <list|read|search> [--max N] [--unseen true] [--from 발신자] [--subject 키워드] [--uid UID]
-- 자격증명은 .env의 IMAP_HOST, IMAP_USER, IMAP_PASS에서 자동 로드
+node scripts/read_email.js --action <list|read|search> [--slack-user SLACK_USER_ID] [--max N] [--unseen true] [--from 발신자] [--subject 키워드] [--uid UID]
+- Slack 유저별 조회: --slack-user U01AB2CD3EF 옵션으로 해당 유저가 connect-email로 등록한 계정 사용
+- 기본 계정: --slack-user 생략 시 .env의 IMAP_HOST, IMAP_USER, IMAP_PASS 사용
 - "내용 보여줘" 요청 시: 먼저 list로 UID를 얻고, read --uid <UID>로 본문 조회 (2단계 필수)
 - list 액션은 헤더(제목, 발신자, 날짜)만 반환하고 본문은 포함하지 않음
 - 출력: JSON (stdout)
@@ -83,9 +84,10 @@ node scripts/read_email.js --action <action> [옵션]
 
 | 옵션 | 기본값 | 설명 |
 |------|--------|------|
-| `--host` | .env `IMAP_HOST` | IMAP 서버 주소 (예: imap.gmail.com, imap.mailplug.co.kr) |
-| `--user` | .env `IMAP_USER` | 이메일 주소 |
-| `--pass` | .env `IMAP_PASS` | 앱 비밀번호 |
+| `--slack-user` | (선택) | Slack 유저 ID — 해당 유저가 등록한 이메일 계정 사용 |
+| `--host` | .env `IMAP_HOST` | IMAP 서버 주소 (`--slack-user` 미지정시) |
+| `--user` | .env `IMAP_USER` | 이메일 주소 (`--slack-user` 미지정시) |
+| `--pass` | .env `IMAP_PASS` | 앱 비밀번호 (`--slack-user` 미지정시) |
 | `--max` | 10 | 최대 조회 건수 |
 | `--unseen` | false | true면 안 읽은 메일만 조회 |
 | `--from` | (선택) | 발신자 필터 |
@@ -138,6 +140,7 @@ node scripts/read_email.js --action <action> [옵션]
 | "안 읽은 메일 확인해줘" | `--action list --unseen true` |
 | "메일 내용 전부 보여줘" | `--action list --max 1` 로 UID 확인 → `--action read --uid <UID>` |
 | "김철수한테 온 메일" | `--action search --from 김철수` |
+| Slack 유저별 조회 | `--action list --slack-user U01AB2CD3EF --max 5` |
 
 **중요: "내용을 보여줘" 요청 처리 흐름**
 1. 먼저 `--action list`로 메일 목록을 가져와 UID를 확인

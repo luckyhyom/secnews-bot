@@ -40,7 +40,7 @@ export class EmailAgent {
         case 'search': {
           const options = {
             maxResults: action.maxResults ?? 10,
-            unseen: action.filters?.unreadOnly !== false,
+            unseen: action.filters?.unreadOnly === true,
             from: action.filters?.from,
             subject: action.filters?.subject || action.query,
           };

@@ -290,6 +290,8 @@ node run.js --provider=ollama
 | `JIRA_EMAIL` | Jira 인증 이메일 | Jira 사용시 |
 | `JIRA_API_TOKEN` | Jira API 토큰 | Jira 사용시 |
 | `TOKEN_ENCRYPTION_KEY` | 이메일 토큰 암호화 키 (32바이트 hex) | 이메일 사용시 |
+| `OLLAMA_MODEL` | Ollama 모델명 (예: qwen3:32b) | Ollama 사용시 |
+| `OLLAMA_BASE_URL` | Ollama 서버 주소 (기본: http://localhost:11434) | 원격 Ollama시 |
 
 ## 진행 중인 리팩토링
 

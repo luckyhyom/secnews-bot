@@ -23,6 +23,15 @@ node scripts/read_email.js --action <list|read|search> [--slack-user SLACK_USER_
 - list 액션은 헤더(제목, 발신자, 날짜)만 반환하고 본문은 포함하지 않음
 - 출력: JSON (stdout)
 
+### 이메일 연동 관리
+node scripts/connect_email.js --action <save|check|remove|list> [--slack-user SLACK_USER_ID] [--host IMAP서버] [--user 이메일] [--pass 비밀번호]
+- save: Slack 유저의 이메일 자격증명을 암호화 저장 (connect-email 대체)
+- check: 해당 유저의 이메일 연동 여부 확인
+- remove: 연동 해제
+- list: 등록된 유저 목록 조회
+- 보안: 비밀번호는 AES-256-GCM으로 암호화되어 state/tokens.json에 저장
+- 출력: JSON (stdout)
+
 ### Jira 검색
 node scripts/jira_query.js --action <search|get|create> [--jql "JQL쿼리"] [--key PROJ-123] [--max N] [--project KEY] [--summary "제목"] [--type Task]
 - 자격증명은 .env의 JIRA_BASE_URL, JIRA_EMAIL, JIRA_API_TOKEN에서 자동 로드
@@ -147,7 +156,48 @@ node scripts/read_email.js --action <action> [옵션]
 2. 그 다음 `--action read --uid <UID>`로 본문을 조회
 3. list 액션은 헤더(제목, 발신자, 날짜)만 반환하고 본문은 포함하지 않음
 
-### 2. Jira 검색
+### 2. 이메일 연동 관리
+
+Slack 유저별 IMAP 자격증명을 암호화 저장/조회/삭제합니다.
+
+**호출 방법:**
+```bash
+node scripts/connect_email.js --action <action> [옵션]
+```
+
+**액션:**
+
+| 액션 | 설명 | 필수 옵션 |
+|------|------|----------|
+| `save` | 자격증명 저장 | `--slack-user`, `--host`, `--user`, `--pass` |
+| `check` | 연동 여부 확인 | `--slack-user` |
+| `remove` | 연동 해제 | `--slack-user` |
+| `list` | 등록된 유저 목록 | 없음 |
+
+**출력 형식:** JSON (stdout)
+
+```json
+// save 결과
+{ "success": true, "message": "user@company.com 연동 완료", "slackUser": "U01AB2CD3EF" }
+
+// check 결과
+{ "success": true, "registered": true, "slackUser": "U01AB2CD3EF" }
+
+// list 결과
+{ "success": true, "count": 2, "users": ["U01AB2CD3EF", "U02BC3DE4FG"] }
+```
+
+**사용자 요청 → 도구 호출 예시:**
+
+| 사용자 요청 | 도구 호출 |
+|------------|----------|
+| "메일 연동해줘" (host/user/pass 제공) | `--action save --slack-user <USER_ID> --host ... --user ... --pass ...` |
+| "내 메일 연동 되어있어?" | `--action check --slack-user <USER_ID>` |
+| "메일 연동 해제해줘" | `--action remove --slack-user <USER_ID>` |
+
+**보안 주의:** 사용자가 비밀번호를 공개 채널에 입력한 경우, 해당 메시지 삭제를 안내하세요.
+
+### 3. Jira 검색
 
 Jira REST API를 통해 이슈를 검색, 조회, 생성합니다.
 
@@ -191,7 +241,7 @@ node scripts/jira_query.js --action <action> [옵션]
 | "긴급 버그" | `type = Bug AND priority = Highest ORDER BY created DESC` |
 | "최근 생성된 이슈 5개" | `ORDER BY created DESC` (--max 5) |
 
-### 3. Slack 메시지 게시
+### 4. Slack 메시지 게시
 
 **호출 방법:**
 ```bash
@@ -204,7 +254,7 @@ node scripts/jira_query.js --action <action> [옵션]
 
 **의존성:** `jq`, `curl`
 
-### 4. 뉴스 파이프라인
+### 5. 뉴스 파이프라인
 
 보안 뉴스 6개 소스에서 기사를 수집하고 AI 요약을 생성하여 Slack에 게시합니다.
 
@@ -231,7 +281,7 @@ node run.js --provider=ollama
 | KISA 보호나라 | WebSearch | 한국어 |
 | Exploit Database | RSS | 영어 |
 
-### 5. 상태 파일 (읽기 전용 참조)
+### 6. 상태 파일 (읽기 전용 참조)
 
 **`state/posted_articles.json`** — 게시 이력 및 중복 방지
 
